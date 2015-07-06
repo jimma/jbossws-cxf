@@ -70,6 +70,7 @@ import org.jboss.wsf.spi.classloading.ClassLoaderProvider;
 import org.jboss.wsf.spi.deployment.AnnotationsInfo;
 import org.jboss.wsf.spi.deployment.ArchiveDeployment;
 import org.jboss.wsf.spi.deployment.Deployment;
+import org.jboss.wsf.spi.deployment.RuntimeConfig;
 import org.jboss.wsf.spi.metadata.config.SOAPAddressRewriteMetadata;
 import org.jboss.wsf.spi.metadata.webservices.JBossWebservicesMetaData;
 import org.jboss.wsf.spi.security.JASPIAuthenticationProvider;
@@ -82,12 +83,16 @@ import org.jboss.wsf.stack.cxf.client.configuration.InterceptorUtils;
 import org.jboss.wsf.stack.cxf.client.configuration.JBossWSBusFactory;
 import org.jboss.wsf.stack.cxf.client.configuration.JBossWSConfigurerImpl;
 import org.jboss.wsf.stack.cxf.deployment.EndpointImpl;
+import org.jboss.wsf.stack.cxf.config.RecordConfigListener;
+import org.jboss.wsf.stack.cxf.config.RuntimeConfigListenerManager;
+import org.jboss.wsf.stack.cxf.config.RuntimeConfigListenerManagerImpl;
 import org.jboss.wsf.stack.cxf.deployment.WSDLFilePublisher;
 import org.jboss.wsf.stack.cxf.extensions.policy.PolicySetsAnnotationListener;
 import org.jboss.wsf.stack.cxf.interceptor.EndpointAssociationInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.EndpointConfigsGetInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.EndpointConfigsPutInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.EndpointMetricsGetInterceptor;
+import org.jboss.wsf.stack.cxf.interceptor.EndpointRecordGetInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.HandlerAuthInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.NsCtxSelectorStoreInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.WSDLSoapAddressRewriteInterceptor;
@@ -158,6 +163,10 @@ public class BusHolder
       {
          bus.setExtension(configurer, Configurer.class);
       }
+      //add runtime config extension
+      RuntimeConfigListenerManager configManager = new RuntimeConfigListenerManagerImpl(bus);
+      configManager.registerListener(RuntimeConfig.RECORD_ENABLED, new RecordConfigListener());
+      bus.setExtension(configManager, RuntimeConfigListenerManager.class);
       Map<String, String> props = getProperties(wsmd);
       
       setInterceptors(bus, dep, props);
@@ -333,6 +342,7 @@ public class BusHolder
       bus.getInInterceptors().add(new EndpointConfigsGetInterceptor());
       bus.getInInterceptors().add(new EndpointConfigsPutInterceptor());
       bus.getInInterceptors().add(new EndpointMetricsGetInterceptor());
+      bus.getInInterceptors().add(new EndpointRecordGetInterceptor());
       bus.getInInterceptors().add(new NsCtxSelectorStoreInterceptor());
       
       final String p = (props != null) ? props.get(Constants.JBWS_CXF_DISABLE_HANDLER_AUTH_CHECKS) : null;
