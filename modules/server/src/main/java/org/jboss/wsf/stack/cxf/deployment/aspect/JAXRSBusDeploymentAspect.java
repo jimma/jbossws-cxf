@@ -27,10 +27,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.validation.ValidatorFactory;
 import javax.ws.rs.core.Application;
 import javax.xml.ws.spi.Provider;
 
-import  com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -57,7 +61,7 @@ import org.jboss.wsf.stack.cxf.Messages;
 import org.jboss.wsf.stack.cxf.cdi.CDIResourceProvider;
 import org.jboss.wsf.stack.cxf.client.configuration.JBossWSBusFactory;
 import org.jboss.wsf.stack.cxf.deployment.JNDIComponentResourceProvider;
-
+import org.jboss.wsf.stack.cxf.validation.JBossWSBeanValidationProvider;
 
 /**
  * A deployment aspect that creates the CXF Bus early and attaches it to the deployment
@@ -77,7 +81,7 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
          //(i.e. no server side integration contribution in it)
          //TODO!!! think about this... is it still fine for the default bus to be created like this?
          JBossWSBusFactory.getDefaultBus(Provider.provider().getClass().getClassLoader());
-      }     
+      }
       startDeploymentBus(dep);
    }
 
@@ -107,15 +111,20 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
          bus.setProperty("skip.default.json.provider.registration", true);
          JAXRSDeploymentMetadata md = dep.getAttachment(JAXRSDeploymentMetadata.class);
          boolean cdiDeployment = false;
-         if (dep.getProperty("isWeldDeployment") != null) {
+         if (dep.getProperty("isWeldDeployment") != null)
+         {
             cdiDeployment = true;
          }
          List<Class<?>> applications = md.getScannedApplicationClasses();
-         if (!applications.isEmpty()) {
-            for (Class<?> appClazz : applications) {
+         if (!applications.isEmpty())
+         {
+            for (Class<?> appClazz : applications)
+            {
                createFromApplication(md, appClazz, bus, classLoader, cdiDeployment);
             }
-         } else {
+         }
+         else
+         {
             create(md, bus, classLoader, cdiDeployment);
          }
          dep.addAttachment(Bus.class, bus);
@@ -126,97 +135,130 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
          SecurityActions.setContextClassLoader(origClassLoader);
       }
    }
-   
-   private static void createFromApplication(JAXRSDeploymentMetadata md, Class<?> appClazz, Bus bus, ClassLoader classLoader, boolean cdiDeployment) {
-      ApplicationInfo providerApp = (ApplicationInfo)createSingletonInstance(appClazz, bus);
+
+   private static void createFromApplication(JAXRSDeploymentMetadata md, Class<?> appClazz, Bus bus,
+         ClassLoader classLoader, boolean cdiDeployment)
+   {
+      ApplicationInfo providerApp = (ApplicationInfo) createSingletonInstance(appClazz, bus);
       Application app = providerApp.getProvider();
       JAXRSServerFactoryBean bean = ResourceUtils.createApplication(app, md.isIgnoreApplicationPath(), false);
       bean.setBus(bus);
       bean.setApplicationInfo(providerApp);
-      bean.setInvoker(new JBossWSJAXRSInvoker());
+      JBossWSJAXRSInvoker invoker = new JBossWSJAXRSInvoker();
+      bean.setInvoker(invoker);
       List<Class<?>> additionalResources = new ArrayList<>();
-      if (app.getClasses().isEmpty() && app.getSingletons().isEmpty()) {
+      if (app.getClasses().isEmpty() && app.getSingletons().isEmpty())
+      {
          processResources(bean, md, bus, classLoader, additionalResources, cdiDeployment);
          setProviders(bean, md, bus, classLoader);
       }
-      if (!cdiDeployment) {
+      if (!cdiDeployment)
+      {
          processJNDIComponentResources(bean, md, bus, classLoader, additionalResources);
       }
-     
+
       setJSONProviders(bean);
       setValidationInterceptors(bean);
-      if (!bean.getResourceClasses().isEmpty() || !additionalResources.isEmpty()) {
+      if (!bean.getResourceClasses().isEmpty() || !additionalResources.isEmpty())
+      {
          bean.setResourceClasses(additionalResources);
          bean.create();
       }
    }
-   
-   private static void setValidationInterceptors(JAXRSServerFactoryBean bean) {
+
+   private static void setValidationInterceptors(JAXRSServerFactoryBean bean)
+   {
       bean.setInInterceptors(Arrays.<Interceptor<? extends Message>> asList(new JAXRSBeanValidationInInterceptor()));
       bean.setOutInterceptors(Arrays.<Interceptor<? extends Message>> asList(new JAXRSBeanValidationOutInterceptor()));
       bean.setProvider(new ValidationExceptionMapper());
    }
-   
-   private static void create(JAXRSDeploymentMetadata md, Bus bus, ClassLoader classLoader, boolean cdiDeployment) {
+
+   private static void create(JAXRSDeploymentMetadata md, Bus bus, ClassLoader classLoader, boolean cdiDeployment)
+   {
       JAXRSServerFactoryBean bean = new JAXRSServerFactoryBean();
       bean.setBus(bus);
       bean.setAddress("/"); //TODO!!!
-      bean.setInvoker(new JBossWSJAXRSInvoker());
+
+      JBossWSJAXRSInvoker invoker = new JBossWSJAXRSInvoker();
+      bean.setInvoker(invoker);
       //resources...
       List<Class<?>> resources = new ArrayList<>();
       processResources(bean, md, bus, classLoader, resources, cdiDeployment);
       //resource providers (CXF)... ?
-      
+
       //providers...
       setProviders(bean, md, bus, classLoader);
       //jndi resource...
       processJNDIComponentResources(bean, md, bus, classLoader, resources);
       setJSONProviders(bean);
       setValidationInterceptors(bean);
-      if (!bean.getResourceClasses().isEmpty() || !resources.isEmpty()) {
+      if (!bean.getResourceClasses().isEmpty() || !resources.isEmpty())
+      {
          bean.setResourceClasses(resources);
          bean.create();
       }
    }
-   
-   private static void processResources(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus, ClassLoader classLoader, List<Class<?>> resources, boolean cdiDeployment) {
-      if (!md.getScannedResourceClasses().isEmpty()) {
-         try {
-            for (String cl : md.getScannedResourceClasses()) 
+
+   @SuppressWarnings(
+   {"rawtypes", "unchecked"})
+   private static void processResources(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus,
+         ClassLoader classLoader, List<Class<?>> resources, boolean cdiDeployment)
+   {
+      if (!md.getScannedResourceClasses().isEmpty())
+      {
+         try
+         {
+            for (String cl : md.getScannedResourceClasses())
             {
                Class<?> clazz = classLoader.loadClass(cl);
                resources.add(clazz);
-               if (cdiDeployment) {
-                  bean.setResourceProvider(clazz, new CDIResourceProvider<>(clazz));
+               if (cdiDeployment)
+               {
+                  bean.setResourceProvider(clazz, new CDIResourceProvider(clazz));
                }
             }
-         } catch (ClassNotFoundException cnfe) {
+         }
+         catch (ClassNotFoundException cnfe)
+         {
             throw new WSFException(cnfe);
          }
       }
    }
-   
-   private static void setProviders(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus, ClassLoader classLoader) {
-      if (!md.getScannedProviderClasses().isEmpty()) {
+
+   private static void setProviders(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus,
+         ClassLoader classLoader)
+   {
+      if (!md.getScannedProviderClasses().isEmpty())
+      {
          List<Object> providers = new ArrayList<>();
-         try {
-            for (String cl : md.getScannedProviderClasses()) {
+         try
+         {
+            for (String cl : md.getScannedProviderClasses())
+            {
                Class<?> clazz = classLoader.loadClass(cl);
                providers.add(createSingletonInstance(clazz, bus));
             }
-         } catch (ClassNotFoundException cnfe) {
+         }
+         catch (ClassNotFoundException cnfe)
+         {
             throw new WSFException(cnfe);
          }
          bean.setProviders(providers);
       }
    }
-   
-   private static void processJNDIComponentResources(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus, ClassLoader classLoader, List<Class<?>> resources) {
-      if (!md.getScannedJndiComponentResources().isEmpty()) {
-         try {
-            for (String cl : md.getScannedJndiComponentResources()) {
+
+   private static void processJNDIComponentResources(JAXRSServerFactoryBean bean, JAXRSDeploymentMetadata md, Bus bus,
+         ClassLoader classLoader, List<Class<?>> resources)
+   {
+      if (!md.getScannedJndiComponentResources().isEmpty())
+      {
+         try
+         {
+            for (String cl : md.getScannedJndiComponentResources())
+            {
                String[] config = cl.trim().split(";");
-               if (config.length < 3) {
+               if (config.length < 3)
+               {
                   throw Messages.MESSAGES.jndiComponentResourceNotSetCorrectly();
                }
                String jndiName = config[0];
@@ -225,13 +267,16 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
                resources.add(clazz);
                bean.setResourceProvider(clazz, new JNDIComponentResourceProvider(jndiName, clazz, cacheRefrence));
             }
-         } catch (ClassNotFoundException cnfe) {
+         }
+         catch (ClassNotFoundException cnfe)
+         {
             throw new WSFException(cnfe);
          }
       }
    }
-   
-   private static void setJSONProviders(JAXRSServerFactoryBean bean) {
+
+   private static void setJSONProviders(JAXRSServerFactoryBean bean)
+   {
       //Add default Jettison provider
       @SuppressWarnings("rawtypes")
       JSONProvider jsonProvider = new JSONProvider();
@@ -239,6 +284,24 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
       bean.setProvider(jsonProvider);
       JacksonJsonProvider provider = new JacksonJsonProvider();
       bean.setProvider(provider);
+   }
+
+   private static ValidatorFactory getValidatorFactory()
+
+   {
+      try
+      {
+         // Also look up java:comp/env
+         Context context = new InitialContext();
+         return ValidatorFactory.class.cast(context.lookup("java:comp/ValidatorFactory"));
+      }
+      catch (NamingException e)
+      {
+         //TODO:log this
+         e.printStackTrace();
+      }
+      return null;
+
    }
 
    private static Object createSingletonInstance(Class<?> cls, Bus bus)
@@ -278,12 +341,14 @@ public class JAXRSBusDeploymentAspect extends AbstractDeploymentAspect
       catch (IllegalAccessException ex)
       {
          ex.printStackTrace();
-         throw new WSFException("Resource class " + cls.getName() + " can not be instantiated due to IllegalAccessException");
+         throw new WSFException("Resource class " + cls.getName()
+               + " can not be instantiated due to IllegalAccessException");
       }
       catch (InvocationTargetException ex)
       {
          ex.printStackTrace();
-         throw new WSFException("Resource class " + cls.getName() + " can not be instantiated due to InvocationTargetException");
+         throw new WSFException("Resource class " + cls.getName()
+               + " can not be instantiated due to InvocationTargetException");
       }
    }
 }

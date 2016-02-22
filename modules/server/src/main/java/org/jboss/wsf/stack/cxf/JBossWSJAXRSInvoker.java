@@ -23,12 +23,22 @@ package org.jboss.wsf.stack.cxf;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.invoker.Invoker;
+import org.jboss.wsf.stack.cxf.cdi.CDIResourceProvider;
 import org.jboss.wsf.stack.cxf.deployment.JNDIComponentResourceProvider;
 import org.jboss.wsf.stack.cxf.validation.JBossWSBeanValidationProvider;
 
@@ -40,11 +50,12 @@ import org.jboss.wsf.stack.cxf.validation.JBossWSBeanValidationProvider;
  */
 public class JBossWSJAXRSInvoker extends JAXRSBeanValidationInvoker implements Invoker
 {
-   public JBossWSJAXRSInvoker() {
+   public JBossWSJAXRSInvoker()
+   {
       super();
       setProvider(new JBossWSBeanValidationProvider());
    }
-   
+
    @Override
    protected Method getMethodToInvoke(ClassResourceInfo cri, OperationResourceInfo ori, Object resourceObject)
    {
@@ -69,6 +80,52 @@ public class JBossWSJAXRSInvoker extends JAXRSBeanValidationInvoker implements I
          methodToInvoke = resourceMethod;
       }
       return methodToInvoke;
+   }
+
+   public Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params)
+   {
+      Message message = JAXRSUtils.getCurrentMessage();
+
+      org.apache.cxf.validation.BeanValidationProvider theProvider = getProvider(message);
+      try
+      {
+         if (isValidateServiceObject())
+         {
+            theProvider.validateBean(serviceObject);
+
+         }
+         theProvider.validateParameters(serviceObject, m, params.toArray());
+         Object response = super.invoke(exchange, serviceObject, m, params);
+
+         if (response instanceof MessageContentsList)
+         {
+            org.apache.cxf.message.MessageContentsList list = (MessageContentsList) response;
+            if (list.size() == 1)
+            {
+               Object entity = ((MessageContentsList) list).get(0);
+
+               if (entity instanceof Response)
+               {
+                  theProvider.validateReturnValue(serviceObject, m, ((Response) entity).getEntity());
+               }
+               else
+               {
+                  theProvider.validateReturnValue(serviceObject, m, entity);
+               }
+            }
+         }
+         return response;
+      }
+      catch (Fault ex)
+      {
+         throw ex;
+      }
+      catch (Throwable ex)
+      {
+         ex.printStackTrace();
+         throw new Fault(ex);
+      }
+
    }
 
    private Method processJNDIRef(Method methodToInvoke, Object resourceObject)
