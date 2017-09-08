@@ -253,7 +253,7 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
+      <!--dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-bindings-object</artifactId>
         <version>${cxf.version}</version>
@@ -263,7 +263,7 @@
             <artifactId>geronimo-javamail_1.4_spec</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
+      </dependency-->
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-bindings-coloc</artifactId>
