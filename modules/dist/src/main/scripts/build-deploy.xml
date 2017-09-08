@@ -401,6 +401,11 @@
           <include name="**/neethi.jar"/>
         </fileset>
       </copy>
+      <copy todir="@{targetdir}/org/apache/velocity/main" flatten="false" overwrite="true">
+        <fileset dir="@{thirdpartydir}/lib">
+          <include name="**/velocity.jar"/>
+        </fileset>
+      </copy>
       <copy todir="@{targetdir}/org/apache/santuario/xmlsec/main" flatten="false" overwrite="true">
         <fileset dir="@{thirdpartydir}/lib">
           <include name="**/xmlsec.jar"/>

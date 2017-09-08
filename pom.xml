@@ -940,10 +940,21 @@
         <artifactId>jboss-ejb-api_3.1_spec</artifactId>
         <version>${ejb.api.version}</version>
       </dependency>
-      <dependency>
+      <!--dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity</artifactId>
         <version>${velocity.version}</version>
+      </dependency-->
+      <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>${velocity.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-beanutils</groupId>
