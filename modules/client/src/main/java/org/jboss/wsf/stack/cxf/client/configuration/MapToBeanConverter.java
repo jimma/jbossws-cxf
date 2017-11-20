@@ -25,6 +25,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.jboss.wsf.spi.classloading.ClassLoaderProvider;
@@ -101,7 +106,22 @@ public class MapToBeanConverter
       Class<?> clazz = SecurityActions.loadClass(loader, className);
       return clazz.newInstance();
    }
-   
+
+   protected Object newInstance(String className, BeanManager beanManager) throws Exception
+   {
+      ClassLoader loader = SecurityActions.createDelegateClassLoader(ClassLoaderProvider.getDefaultProvider()
+            .getServerIntegrationClassLoader(), SecurityActions.getContextClassLoader());
+      Class<?> clazz = SecurityActions.loadClass(loader, className);
+      Set<Bean<?>> bean = beanManager.getBeans(className);
+      Bean<?> interceptorBean = bean.iterator().next();
+     
+      if (interceptorBean != null) {
+         CreationalContext  creationalContext = beanManager.createCreationalContext(interceptorBean);
+         return beanManager.getReference(interceptorBean, clazz, creationalContext);
+      }
+      return null;
+   }
+
    /**
     * Return an attribute name to attribute value map
     * 

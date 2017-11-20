@@ -70,5 +70,6 @@
         <module name="org.apache.commons.beanutils"/>
         <module name="javax.wsdl4j.api" />
         <module name="org.bouncycastle" />
+        <module name="javax.enterprise.api" export="true"/>
     </dependencies>
 </module>

@@ -108,7 +108,7 @@ public class EndpointImpl extends org.apache.cxf.jaxws.EndpointImpl
             {
                propMap.putAll(epConfProps);
             }
-            InterceptorUtils.addInterceptors(this, epConfProps);
+            //InterceptorUtils.addInterceptors(this, epConfProps);
             FeatureUtils.addFeatures(this, getBus(), epConfProps);
          }
          //handlers config is done later, as when this methods is called getBinding() can't

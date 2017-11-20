@@ -28,8 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.enterprise.inject.spi.BeanManager;
+
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.jboss.wsf.spi.deployment.Endpoint;
 import org.jboss.wsf.stack.cxf.client.Constants;
 
 /**
@@ -42,34 +45,54 @@ import org.jboss.wsf.stack.cxf.client.Constants;
 public class InterceptorUtils
 {
    public static void addInterceptors(InterceptorProvider interceptorProvider, Map<String, String> properties) {
+      addInterceptors(interceptorProvider, properties, null);
+   }
+   public static void addInterceptors(InterceptorProvider interceptorProvider, Map<String, String> properties, BeanManager beanManager) {
       MapToBeanConverter converter = null;
       final String inInterceptors = properties.get(Constants.CXF_IN_INTERCEPTORS_PROP);
       if (inInterceptors != null) {
          if (converter == null) {
             converter = new MapToBeanConverter(properties);
          }
-         interceptorProvider.getInInterceptors().addAll(createInterceptors(inInterceptors, converter));
+         if (beanManager != null) {
+            interceptorProvider.getInInterceptors().addAll(createInterceptors(inInterceptors, converter, beanManager));
+         } else {
+            interceptorProvider.getInInterceptors().addAll(createInterceptors(inInterceptors, converter));
+         }
+         
       }
       final String outInterceptors = properties.get(Constants.CXF_OUT_INTERCEPTORS_PROP);
       if (outInterceptors != null) {
          if (converter == null) {
             converter = new MapToBeanConverter(properties);
          }
-         interceptorProvider.getOutInterceptors().addAll(createInterceptors(outInterceptors, converter));
+         if (beanManager != null) {
+            interceptorProvider.getOutInterceptors().addAll(createInterceptors(outInterceptors, converter, beanManager));
+         }else {
+            interceptorProvider.getOutInterceptors().addAll(createInterceptors(inInterceptors, converter));
+         }
       }
       final String inFaultInterceptors = properties.get(Constants.CXF_IN_FAULT_INTERCEPTORS_PROP);
       if (inFaultInterceptors != null) {
          if (converter == null) {
             converter = new MapToBeanConverter(properties);
          }
-         interceptorProvider.getInFaultInterceptors().addAll(createInterceptors(inFaultInterceptors, converter));
+         if (beanManager != null) {
+            interceptorProvider.getInFaultInterceptors().addAll(createInterceptors(outInterceptors, converter, beanManager));
+         }else {
+            interceptorProvider.getInFaultInterceptors().addAll(createInterceptors(inInterceptors, converter));
+         }
       }
       final String outFaultInterceptors = properties.get(Constants.CXF_OUT_FAULT_INTERCEPTORS_PROP);
       if (outFaultInterceptors != null) {
          if (converter == null) {
             converter = new MapToBeanConverter(properties);
          }
-         interceptorProvider.getOutFaultInterceptors().addAll(createInterceptors(outFaultInterceptors, converter));
+         if (beanManager != null) {
+            interceptorProvider.getOutFaultInterceptors().addAll(createInterceptors(outInterceptors, converter, beanManager));
+         }else {
+            interceptorProvider.getOutFaultInterceptors().addAll(createInterceptors(inInterceptors, converter));
+         }
       }
    }
    
@@ -87,12 +110,21 @@ public class InterceptorUtils
       }
       interceptorsList.removeAll(toBeRemoved);
    }
-   
    private static List<Interceptor<?>> createInterceptors(String propValue, MapToBeanConverter converter) {
+     return createInterceptors(propValue, converter, null); 
+   }
+   private static List<Interceptor<?>> createInterceptors(String propValue, MapToBeanConverter converter, BeanManager beanManager) {
       List<Interceptor<?>> list = new ArrayList<Interceptor<?>>();
       StringTokenizer st = new StringTokenizer(propValue, ", ", false );
       while (st.hasMoreTokens()) {
-         Interceptor<?> interceptor = (Interceptor<?>)newInstance(st.nextToken(), converter);
+         Interceptor<?> interceptor = null;
+         if (beanManager != null) {
+            interceptor = (Interceptor<?>)newInstance(st.nextToken(), converter, beanManager);
+         }
+         if (interceptor == null)
+         {
+            interceptor = (Interceptor<?>)newInstance(st.nextToken(), converter);
+         }
          if (interceptor != null) {
             list.add(interceptor);
          }
@@ -107,7 +139,19 @@ public class InterceptorUtils
          return className.startsWith(MapToBeanConverter.BEAN_ID_PREFIX) ? converter.get(className) : converter.newInstance(className);
       }
       catch (Exception e)
+      {  
+         return null;
+      }
+   }
+   
+   private static Object newInstance(String className, MapToBeanConverter converter, BeanManager beanManager)
+   {
+      try
       {
+         return className.startsWith(MapToBeanConverter.BEAN_ID_PREFIX) ? converter.get(className) : converter.newInstance(className, beanManager);
+      }
+      catch (Exception e)
+      {  e.printStackTrace();
          return null;
       }
    }

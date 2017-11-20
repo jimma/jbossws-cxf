@@ -29,8 +29,9 @@
     </resources>
 
     <dependencies>
+        <module name="javax.enterprise.api" export="true"/>
         <!-- JAXB API + REF IMPL -->
-        <module name="javax.xml.bind.api" export="true"/>
+        <module name="javax.xml.bind.api" export="true"/> 
         <module name="com.sun.xml.bind" export="true" services="export"/>
         <module name="javax.xml.ws.api" export="true"/>
         <module name="javax.jws.api" export="true"/>
