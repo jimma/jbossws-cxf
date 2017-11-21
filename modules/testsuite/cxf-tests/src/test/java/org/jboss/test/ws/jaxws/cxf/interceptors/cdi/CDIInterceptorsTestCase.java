@@ -56,10 +56,9 @@ public class CDIInterceptorsTestCase extends JBossWSTest
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.Endpoint.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointImpl.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.CDIBean.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.JBossWSCdiExtension.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.CDITarget.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointInterceptor.class)
-            //.addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/cxf/interceptors/cdi/WEB-INF/beans.xml"), "beans.xml")
+            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.AbstractPhaseCdiInterceptor.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
             .addAsResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/cxf/interceptors/cdi/WEB-INF/jaxws-endpoint-config.xml"));
       return archive;

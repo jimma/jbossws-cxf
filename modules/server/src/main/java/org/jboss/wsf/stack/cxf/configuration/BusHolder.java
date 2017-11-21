@@ -363,6 +363,7 @@ public class BusHolder
       //Install the EndpointAssociationInterceptor for linking every message exchange
       //with the proper spi Endpoint retrieved in CXFServletExt
       bus.getInInterceptors().add(new EndpointAssociationInterceptor());
+      bus.getInInterceptors().add(new CdiInjectionInterceptor());
       bus.getInInterceptors().add(new NsCtxSelectorStoreInterceptor());
       bus.getInInterceptors().add(new GracefulShutdownInterceptor());
       

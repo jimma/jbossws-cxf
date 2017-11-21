@@ -21,15 +21,15 @@
  */
 package org.jboss.test.ws.jaxws.cxf.interceptors.cdi;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
-
-public class EndpointInterceptor extends AbstractPhaseInterceptor<Message>
+@ApplicationScoped
+public class EndpointInterceptor extends AbstractPhaseCdiInterceptor<Message>
 {
    @Inject
    private CDIBean cdiBean;
@@ -40,13 +40,11 @@ public class EndpointInterceptor extends AbstractPhaseInterceptor<Message>
    
    public void handleMessage(Message message) throws Fault
    {
-      
-      System.out.println(JBossWSCdiExtension.getBeanManager());
       StringBuilder sb = message.get(StringBuilder.class);
       if (sb == null) {
          sb = new StringBuilder();
          message.put(StringBuilder.class, sb);
       }
-      //sb.append(cdiBean.getValue());
+      sb.append(cdiBean.getValue());
    }
 }

@@ -112,9 +112,8 @@ public class MapToBeanConverter
       ClassLoader loader = SecurityActions.createDelegateClassLoader(ClassLoaderProvider.getDefaultProvider()
             .getServerIntegrationClassLoader(), SecurityActions.getContextClassLoader());
       Class<?> clazz = SecurityActions.loadClass(loader, className);
-      Set<Bean<?>> bean = beanManager.getBeans(className);
+      Set<Bean<?>> bean = beanManager.getBeans(clazz);
       Bean<?> interceptorBean = bean.iterator().next();
-     
       if (interceptorBean != null) {
          CreationalContext  creationalContext = beanManager.createCreationalContext(interceptorBean);
          return beanManager.getReference(interceptorBean, clazz, creationalContext);
