@@ -87,6 +87,7 @@ import org.jboss.wsf.stack.cxf.client.configuration.JBossWSConfigurerImpl;
 import org.jboss.wsf.stack.cxf.deployment.EndpointImpl;
 import org.jboss.wsf.stack.cxf.deployment.WSDLFilePublisher;
 import org.jboss.wsf.stack.cxf.extensions.policy.PolicySetsAnnotationListener;
+import org.jboss.wsf.stack.cxf.interceptor.CdiInjectionInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.EndpointAssociationInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.GracefulShutdownInterceptor;
 import org.jboss.wsf.stack.cxf.interceptor.HandlerAuthInterceptor;
