@@ -12,7 +12,7 @@ import org.jboss.wsf.stack.cxf.client.configuration.InterceptorUtils;
 
 public class CdiInjectionInterceptor extends AbstractPhaseInterceptor<Message>
 {
-   private boolean executed;
+   private volatile boolean executed;
    public CdiInjectionInterceptor()
    {
       super(Phase.RECEIVE);

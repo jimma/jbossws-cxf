@@ -56,7 +56,6 @@ public class CDIInterceptorsTestCase extends JBossWSTest
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.Endpoint.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointImpl.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.CDIBean.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.CDITarget.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointInterceptor.class)
             .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.AbstractPhaseCdiInterceptor.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
