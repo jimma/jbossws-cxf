@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2014, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2017, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,35 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.jboss.test.ws.jaxws.cxf.interceptors.cdi;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.Phase;
-
-@ApplicationScoped
-public class EndpointInterceptor extends AbstractPhaseCdiInterceptor<Message>
+public interface Name
 {
-   @Inject
-   private CDIBean cdiBean;
-   private Name name;
-   @Inject
-   public EndpointInterceptor(@ShortDefault Name name)
-   {
-      super(Phase.RECEIVE);
-      this.name = name;
-   }
-   
-   public void handleMessage(Message message) throws Fault
-   {
-      StringBuilder sb = message.get(StringBuilder.class);
-      if (sb == null) {
-         sb = new StringBuilder();
-         message.put(StringBuilder.class, sb);
-      }
-      sb.append(cdiBean.getValue()+ name.getValue());
-   }
+   String getValue();
+
 }
