@@ -32,7 +32,6 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.wsf.test.JBossWSTest;
@@ -53,16 +52,20 @@ public class CDIInterceptorsTestCase extends JBossWSTest
       WebArchive archive = ShrinkWrap.create(WebArchive.class, "jaxws-cxf-cdi-interceptors.war");
       archive.setManifest(new StringAsset("Manifest-Version: 1.0\n"
                   + "Dependencies: org.apache.cxf\n"))
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.Endpoint.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointImpl.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.CDIBean.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.Name.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.LongName.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.ShortName.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.ShortDefault.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EndpointInterceptor.class)
-            .addClass(org.jboss.test.ws.jaxws.cxf.interceptors.cdi.AbstractPhaseCdiInterceptor.class)
-            .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
+            .addClass(Endpoint.class)
+            .addClass(EndpointImpl.class)
+            .addClass(CDIBean.class)
+            .addClass(Name.class)
+            .addClass(LongName.class)
+            .addClass(ShortName.class)
+            .addClass(ShortDefault.class)
+            .addClass(EndpointInterceptor.class)
+            .addClass(EjbEndpointInterceptor.class)
+            .addClass(BeanIface.class)
+            .addClass(BeanImpl.class)
+            .addClass(EJB3Endpoint.class)
+            .addClass(AbstractPhaseCdiInterceptor.class)
+            .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/cxf/interceptors/cdi/WEB-INF/beans.xml"), "beans.xml")
             .addAsResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/cxf/interceptors/cdi/WEB-INF/jaxws-endpoint-config.xml"));
       return archive;
    }
@@ -73,7 +76,17 @@ public class CDIInterceptorsTestCase extends JBossWSTest
       URL wsdlURL = new URL(baseURL + "MyService?wsdl");
       Service service = Service.create(wsdlURL, new QName("http://org.jboss.ws.jaxws.cxf/interceptors", "MyService"));
       Endpoint port = service.getPort(new QName("http://org.jboss.ws.jaxws.cxf/interceptors", "MyEndpointPort"), Endpoint.class);
-      assertEquals("Hi CDIBeanValue", port.echo("Hi"));
+      assertEquals("Hi CDIBeanValue|ShortName|EndpointInterceptorPostConstructed|EndpointImplPostConstructeds|EjbBeanCalled", port.echo("Hi"));
+
+   }
+   
+   @Test
+   @RunAsClient
+   public void testEJBEndpointWithCDIInterceptors() throws Exception {
+      URL wsdlURL = new URL(baseURL + "/EJB3Service/EJB3Endpoint?wsdl");
+      Service service = Service.create(wsdlURL, new QName("http://org.jboss.ws.jaxws.cxf/interceptors", "EJB3Service"));
+      Endpoint port = service.getPort(new QName("http://org.jboss.ws.jaxws.cxf/interceptors", "EJB3EndpointPort"), Endpoint.class);
+      assertEquals("Hi CDIBeanValue|ShortName|EjbEndpointInterceptorPostConstructed", port.echo("Hi"));
 
    }
 }

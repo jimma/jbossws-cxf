@@ -21,14 +21,15 @@
  */
 package org.jboss.test.ws.jaxws.cxf.interceptors.cdi;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.message.Message;
-import org.jboss.logging.Logger;
 
 @WebService(name = "MyEndpoint", targetNamespace = "http://org.jboss.ws.jaxws.cxf/interceptors", serviceName = "MyService", portName = "MyEndpointPort")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
@@ -36,12 +37,18 @@ public class EndpointImpl
 {
    @Resource
    WebServiceContext ctx;
+   @EJB
+   private BeanIface testBean;
+   private String postConstructCalled;
    
    @WebMethod
    public String echo(String input)
    {
-      Logger.getLogger(this.getClass()).info("echo: " + input);
       Message cxfMessage = (Message)ctx.getMessageContext().get(Message.class.getName());
-      return input + " " + cxfMessage.get(StringBuilder.class).toString();
+      return input + " " + cxfMessage.get(StringBuilder.class).toString() + "|" +postConstructCalled+"|"+ testBean.printString();
+   }
+   @PostConstruct
+   private void init() {
+      postConstructCalled  = "EndpointImplPostConstructeds";
    }
 }

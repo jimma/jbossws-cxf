@@ -11,4 +11,12 @@
     </property>
   </endpoint-config>
   
+  <endpoint-config>
+    <config-name>org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EJB3Endpoint</config-name>
+    <property>
+      <property-name>cxf.interceptors.in</property-name>
+      <property-value>org.jboss.test.ws.jaxws.cxf.interceptors.cdi.EjbEndpointInterceptor</property-value>
+    </property>
+  </endpoint-config>
+  
 </jaxws-config>
