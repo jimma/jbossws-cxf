@@ -24,6 +24,8 @@ package org.jboss.wsf.stack.cxf;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.jboss.ws.common.utils.DelegateClassLoader;
+
 /**
  * 
  * @author alessio.soldano@jboss.com
@@ -74,6 +76,24 @@ class SecurityActions
             {
                Thread.currentThread().setContextClassLoader(classLoader);
                return null;
+            }
+         });
+      }
+   }
+   static DelegateClassLoader createDelegateClassLoader(final ClassLoader clientClassLoader, final ClassLoader origClassLoader)
+   {
+      SecurityManager sm = System.getSecurityManager();
+      if (sm == null)
+      {
+         return new DelegateClassLoader(clientClassLoader, origClassLoader);
+      }
+      else
+      {
+         return AccessController.doPrivileged(new PrivilegedAction<DelegateClassLoader>()
+         {
+            public DelegateClassLoader run()
+            {
+               return new DelegateClassLoader(clientClassLoader, origClassLoader);
             }
          });
       }
