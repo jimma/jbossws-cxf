@@ -1,9 +1,14 @@
 dist: trusty
 install:
-  - wget https://download.java.net/java/GA/jdk10/10/binaries/openjdk-10_linux-x64_bin.tar.gz
-  - tar -xzf openjdk-10_linux-x64_bin.tar.gz
-  - export JAVA_HOME=$(pwd)/jdk-10
+  #- wget https://download.java.net/java/GA/jdk10/10/binaries/openjdk-10_linux-x64_bin.tar.gz
+  #- tar -xzf openjdk-10_linux-x64_bin.tar.gz
+  #- export JAVA_HOME=$(pwd)/jdk-10
+  #- export PATH=$JAVA_HOME/bin:$PATH
+  - wget https://download.java.net/java/early_access/jdk11/22/GPL/openjdk-11-ea+22_linux-x64_bin.tar.gz
+  - tar -xzf openjdk-11-ea+22_linux-x64_bin.tar.gz
+  - export JAVA_HOME=$(pwd)/jdk-11
   - export PATH=$JAVA_HOME/bin:$PATH
+
 script:
   - travis_wait 30 travis-scripts/jbossws-test.sh $SERVER_VERSION $SECURITY_MGR $BUILD_WFLY_MASTER
 
@@ -12,10 +17,10 @@ language: java
 #  - oraclejdk10
 
 env:
-  - SERVER_VERSION=wildfly1300 SECURITY_MGR=false BUILD_WFLY_MASTER=false
-  - SERVER_VERSION=wildfly1300,secmgr SECURITY_MGR=true BUILD_WFLY_MASTER=false
+  #- SERVER_VERSION=wildfly1300 SECURITY_MGR=false BUILD_WFLY_MASTER=false
+  #- SERVER_VERSION=wildfly1300,secmgr SECURITY_MGR=true BUILD_WFLY_MASTER=false
   - SERVER_VERSION=wildfly1400 SECURITY_MGR=false BUILD_WFLY_MASTER=true
-  - SERVER_VERSION=wildfly1400,secmgr SECURITY_MGR=true BUILD_WFLY_MASTER=true
+  #- SERVER_VERSION=wildfly1400,secmgr SECURITY_MGR=true BUILD_WFLY_MASTER=true
 cache:
  directories:
   - $HOME/.m2
