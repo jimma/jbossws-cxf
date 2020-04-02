@@ -35,6 +35,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.wsf.test.JBossWSTest;
 import org.jboss.wsf.test.JBossWSTestHelper;
@@ -48,13 +49,13 @@ import org.junit.runner.RunWith;
  * @author alessio.soldano@jboss.com
  * @since 26-May-2011
  */
-@RunWith(Arquillian.class)
+//@RunWith(Arquillian.class)
 public final class UsernameAuthorizationTestCase extends JBossWSTest
 {
-   @ArquillianResource
-   private URL baseURL;
+   //@ArquillianResource
+   String baseURL = "http://127.0.0.1:8080/jaxws-samples-wsse-policy-username-jaas";
 
-   @Deployment(testable = false)
+   //@Deployment(testable = false)
    public static WebArchive createDeployment() {
       WebArchive archive = ShrinkWrap.create(WebArchive.class, "jaxws-samples-wsse-policy-username-jaas.war");
       archive
@@ -72,6 +73,7 @@ public final class UsernameAuthorizationTestCase extends JBossWSTest
             .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/jaas/auth/WEB-INF/wsdl/SecurityService.wsdl"), "wsdl/SecurityService.wsdl")
             .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/jaas/auth/WEB-INF/wsdl/SecurityService_schema1.xsd"), "wsdl/SecurityService_schema1.xsd")
             .setWebXML(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/jaas/auth/WEB-INF/web.xml"));
+      archive.as(ZipExporter.class).exportTo(new java.io.File("./tmp/jaxws-samples-wsse-policy-username-jaas.war"), true);
       return archive;
    }
 
@@ -107,7 +109,7 @@ public final class UsernameAuthorizationTestCase extends JBossWSTest
       }
    }
    
-   @Test
+   //@Test
    @RunAsClient
    public void testUnauthorized() throws Exception
    {
