@@ -26,9 +26,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -333,5 +342,23 @@ public class WSProviderPlugin extends JBossWSTest
    {
       provider.setOutputDirectory(outputDirectory);
       provider.provide(CalculatorBean.class);
+      listFiles(outputDirectory);
+   }
+
+   public void listFiles(File dir) {
+
+      File listFile[] = dir.listFiles();
+      if (listFile != null) {
+         for (int i=0; i<listFile.length; i++) {
+            if (listFile[i].isDirectory()) {
+               System.out.println("| " + listFile[i].getPath());
+               listFiles(listFile[i]);
+            } else {
+
+               System.out.println("+ " + listFile[i].getParent() + "/" +listFile[i].getName().toString());
+
+            }
+         }
+      }
    }
 }
