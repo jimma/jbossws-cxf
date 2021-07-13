@@ -16,9 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
-        java: ['8', '11']
-        wildfly-version: ['wildfly2200', 'wildfly2300']
+        os: [windows-latest ]
+        java: ['11']
+        wildfly-version: ['wildfly2200']
 
     steps:
       - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }} - Linux
         run: |
-          mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
+          mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} -Dtest=WSProviderTestCaseForked  -DfailIfNoTests=false clean install
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
