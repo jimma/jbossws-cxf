@@ -27,6 +27,7 @@ import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.Resource;
 import org.jboss.wsf.stack.cxf.i18n.Loggers;
 
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -76,9 +77,13 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
                                      Iterable<? extends JavaFileObject> fileList) {
       List<String> args = new ArrayList<>();
       addArgs(args);
-      JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager,
+      java.io.StringWriter bout = new java.io.StringWriter();
+      JavaCompiler.CompilationTask task = compiler.getTask(bout, fileManager,
               listener, args, null, fileList);
       Boolean ret = task.call();
+      if (!ret) {
+          System.out.println("++++++++++++++ Compile failed +++++++++++++++");
+      }
       try {
          fileManager.close();
       } catch (IOException e) {
