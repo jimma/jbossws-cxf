@@ -361,6 +361,7 @@ public class CXFConsumerImpl extends WSContractConsumer
             throw new RuntimeException("Unknown version of jvm " + vmVersionStr);
          }
       } catch (Exception e) {
+         e.printStackTrace();
          return 8;
       }
    }

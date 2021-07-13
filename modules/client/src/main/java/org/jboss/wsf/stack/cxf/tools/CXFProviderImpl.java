@@ -201,12 +201,14 @@ public class CXFProviderImpl extends WSContractProvider
          JavaToWS j2w = new JavaToWS(args.toArray(new String[0]));
          if (CXFConsumerImpl.getJVMMajorVersion() > 8)
          {
+            System.out.println("----Higher than java8-----");
             ToolContext ctx = new ToolContext();
             ctx.put(ToolConstants.CFG_CMD_ARG, args);
             ctx.put(ToolConstants.COMPILER, new Jdk9PlusJBossModulesAwareCompiler());
             j2w.run(ctx, stream);
          } else
          {
+            System.out.println("----Checked and it's java8----");
             j2w.run(stream);
          }
 

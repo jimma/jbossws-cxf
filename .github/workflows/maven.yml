@@ -33,9 +33,9 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
-      - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }} - Linux
+      - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }} - ${{ matrix.os }}
         run: |
-          mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} -Dtest=WSProviderTestCaseForked  -DfailIfNoTests=false clean install
+          mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} -Dtest=WSProviderTestCaseForked#testOutputDirectory  -DfailIfNoTests=false clean install
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
