@@ -79,10 +79,16 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
       addArgs(args);
       System.out.println("++++++++++++++ Compiler Args +++++++++++++++");
       args.forEach(System.out::println);
+      List<String> filtered = new ArrayList<>();
+      args.forEach(arg -> {filtered.add(arg.replace(";//", ";"));});
+
       System.out.println("++++++++++++++ Compile Args End +++++++++++++++");
+
+      filtered.forEach(System.out::println);
+      System.out.println("------------------------------------------------");
       java.io.StringWriter bout = new java.io.StringWriter();
       JavaCompiler.CompilationTask task = compiler.getTask(bout, fileManager,
-              listener, args, null, fileList);
+              listener, filtered, null, fileList);
       Boolean ret = task.call();
       if (!ret) {
           System.out.println("++++++++++++++ Compile failed +++++++++++++++");
