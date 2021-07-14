@@ -343,6 +343,9 @@ public class WSProviderPlugin extends JBossWSTest
       provider.setOutputDirectory(outputDirectory);
       provider.provide(CalculatorBean.class);
       listFiles(outputDirectory);
+      System.out.println("-----------------------------------------");
+      listFiles(new File(outputDirectory, "../../test-classes/"));
+      System.out.println("-----------------test classes------------------------");
    }
 
    public void listFiles(File dir) {
