@@ -83,6 +83,8 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
       Boolean ret = task.call();
       if (!ret) {
           System.out.println("++++++++++++++ Compile failed +++++++++++++++");
+          this.getErrors().forEach(System.out::println);
+         System.out.println("++++++++++++++ Compile Error Message End +++++++++++++++");
       }
       try {
          fileManager.close();
