@@ -77,6 +77,9 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
                                      Iterable<? extends JavaFileObject> fileList) {
       List<String> args = new ArrayList<>();
       addArgs(args);
+      System.out.println("++++++++++++++ Compiler Args +++++++++++++++");
+      args.forEach(System.out::println);
+      System.out.println("++++++++++++++ Compile Args End +++++++++++++++");
       java.io.StringWriter bout = new java.io.StringWriter();
       JavaCompiler.CompilationTask task = compiler.getTask(bout, fileManager,
               listener, args, null, fileList);
