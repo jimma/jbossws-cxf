@@ -81,7 +81,7 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
       args.forEach(System.out::println);
       List<String> filtered = new ArrayList<>();
       for (String arg : args) {
-          String tmp = arg.replaceAll("/", "\\");
+          String tmp = arg.replaceAll("//", "\\");
           filtered.add(tmp);
 
       }
