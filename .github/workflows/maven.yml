@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest ]
-        java: ['11']
+        java: ['8','11.0.4']
         wildfly-version: ['wildfly2200']
 
     steps:
@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'adopt'
+          distribution: 'zulu'
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }} - ${{ matrix.os }}
         run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} -Dtest=WSProviderTestCaseForked#testOutputDirectory  -DfailIfNoTests=false clean install
