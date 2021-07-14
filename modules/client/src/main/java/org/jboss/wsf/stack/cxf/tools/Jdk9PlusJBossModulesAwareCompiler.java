@@ -80,7 +80,15 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
       System.out.println("++++++++++++++ Compiler Args +++++++++++++++");
       args.forEach(System.out::println);
       List<String> filtered = new ArrayList<>();
-      args.forEach(arg -> {filtered.add(arg.replace(";//", ";"));});
+      for (String arg : args) {
+          if (arg.contains("//D")) {
+             filtered.add(arg.replace("//D", "D"));
+          } else if (arg.contains("//C")) {
+             filtered.add(arg.replace("//C", "C"));
+          } else {
+             filtered.add(arg);
+          }
+      }
 
       System.out.println("++++++++++++++ Compile Args End +++++++++++++++");
 
