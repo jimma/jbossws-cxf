@@ -22,6 +22,7 @@
 package org.jboss.wsf.stack.cxf.tools;
 
 import org.apache.cxf.common.util.Compiler;
+import org.apache.cxf.common.util.SystemPropertyAction;
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.Resource;
@@ -91,6 +92,12 @@ public final class Jdk9PlusJBossModulesAwareCompiler extends Compiler
 
       filtered.forEach(System.out::println);
       System.out.println("------------------------------------------------");
+
+      System.out.println("-----------Class path --------------------------");
+      String javaClasspath = SystemPropertyAction.getProperty("java.class.path");
+      System.out.println(javaClasspath);
+      System.out.println("-----------Class path End-----------------------");
+
       java.io.StringWriter bout = new java.io.StringWriter();
       JavaCompiler.CompilationTask task = compiler.getTask(bout, fileManager,
               listener, filtered, null, fileList);
