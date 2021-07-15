@@ -37,12 +37,10 @@ jobs:
         run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} -Dtest=WSProviderTestCaseForked#testOutputDirectory  -DfailIfNoTests=false clean install
       - uses: actions/upload-artifact@v2
-        if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
           path: '**/surefire-reports/*.txt'
       - uses: actions/upload-artifact@v2
-        if: failure()
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
           path: '**/server.log'
