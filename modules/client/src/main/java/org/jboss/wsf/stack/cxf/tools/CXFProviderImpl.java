@@ -237,11 +237,14 @@ public class CXFProviderImpl extends WSContractProvider
       {
          StringBuilder builder = new StringBuilder();
          URLClassLoader urlLoader = (URLClassLoader)cl;
+         System.out.println("---Adding class path Start------");
          for (URL url : urlLoader.getURLs())
          {
+            System.out.println(url.getPath());
             builder.append(url.getPath());
             builder.append(File.pathSeparator);
          }
+         System.out.println("---Adding class path END------");
 
          if (cl.getParent() != null)
          {
