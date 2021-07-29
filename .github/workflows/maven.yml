@@ -42,8 +42,11 @@ jobs:
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
           cd wildfly
+          echo "****** ${{ matrix.wildfly-version }}"
           mvn -s ../.m2-settings.xml --quiet clean install -DskipTests -Denforcer.skip -Dcheckstyle.skip -Prelease
           cd ..
+      - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
+        run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
       - uses: actions/upload-artifact@v2
         if: failure()
