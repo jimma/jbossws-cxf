@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: wildfly/wildfly
-          path: '../../wildfly'
+          path: './wildfly'
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -41,6 +41,9 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
+          cd wildfly
+          mvn -s ../.m2-settings.xml --quiet clean install -DskipTests -Denforcer.skip -Dcheckstyle.skip -Prelease
+          cd ..
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
       - uses: actions/upload-artifact@v2
         if: failure()
