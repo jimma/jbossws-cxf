@@ -21,7 +21,12 @@ jobs:
         wildfly-version: ['wildfly2200', 'wildfly2300']
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout jbossws-cxf
+        uses: actions/checkout@v2
+      - name: Checkout wildfly
+        uses: actions/checkout@v2
+        with:
+          repository: wildfly/wildfly
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -33,7 +38,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
-      - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }} - Linux
+      - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
       - uses: actions/upload-artifact@v2
