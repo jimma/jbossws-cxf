@@ -42,7 +42,7 @@ jobs:
       - name: Conditionally build WFLY
         if: ${{ matrix.wildfly-version == 'wildfly2500'}}
         working-directory: ./wildfly
-        run: mvn -DskipTests=true '-Denforcer'.skip=true -Prelease clean install
+        run: mvn -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
