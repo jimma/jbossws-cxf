@@ -18,18 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
+        os: [ubuntu-latest]
         java: ['8', '11']
-        wildfly-version: ['wildfly2400', 'wildfly2600']
+        wildfly-version: ['wildfly2400']
 
     steps:
       - name: Checkout jbossws-cxf
         uses: actions/checkout@v2
-      - name: Checkout wildfly
-        uses: actions/checkout@v2
-        with:
-          repository: wildfly/wildfly
-          path: './wildfly'
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -41,10 +36,6 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
-      - name: Conditionally build WFLY
-        if: ${{ matrix.wildfly-version == 'wildfly2600'}}
-        working-directory: ./wildfly
-        run: mvn -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
           mvn -s ./.m2-settings.xml -B -V -fae -P${{ matrix.wildfly-version }} verify
