@@ -21,8 +21,8 @@
  */
 package org.jboss.test.ws.jaxws.samples.advanced.retail;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Stateless;
 import jakarta.jws.HandlerChain;
 import jakarta.jws.WebService;
 import jakarta.xml.ws.WebServiceRef;
