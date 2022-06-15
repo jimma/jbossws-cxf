@@ -200,6 +200,7 @@ public class ServiceRefTestCase extends JBossWSTest
             System.out.println("---------------log------------------");
             System.out.println(appclientOS.toString());
             System.out.println("#####################################");
+            throw e;
          }
          // wait till appclient stops
          String appclientLog = appclientOS.toString();
