@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
+        os: [windows-latest ]
         java: ['11','17']
         wildfly-version: ['wildfly2700']
 
@@ -43,7 +43,7 @@ jobs:
         run: mvn -s ../.m2-settings.xml -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
-          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite clean install
+          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite clean install -Dtest=ServiceRefTestCase
       - name: Publish Test Report
         if: ${{ always() }}
         uses: scacap/action-surefire-report@v1
@@ -56,4 +56,4 @@ jobs:
         if: failure()
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '**/*/*.log'
+          path: '**/appclient-logs/*.*'
