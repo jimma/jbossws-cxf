@@ -193,7 +193,14 @@ public class ServiceRefTestCase extends JBossWSTest
       try
       {
          final OutputStream appclientOS = new ByteArrayOutputStream();
-         JBossWSTestHelper.deployAppclient(fullAppclientDepName, appclientOS, "Hello World!");
+         try {
+            JBossWSTestHelper.deployAppclient(fullAppclientDepName, appclientOS, "Hello World!");
+         } catch (Throwable e) {
+            e.printStackTrace();
+            System.out.println("---------------log------------------");
+            System.out.println(appclientOS.toString());
+            System.out.println("#####################################");
+         }
          // wait till appclient stops
          String appclientLog = appclientOS.toString();
          while (!appclientLog.contains("stopped in")) {
