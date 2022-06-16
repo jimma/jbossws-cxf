@@ -29,10 +29,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +78,7 @@ final class AppclientHelper
       public CopyJob errTask;
       public OutputStream output;
       public OutputStream log;
+      public File logFile;
    }
 
    private AppclientHelper()
@@ -90,8 +101,23 @@ final class AppclientHelper
       final AppclientProcess ap = newAppclientProcess(archive, appclientOS, appclientArgs);
       final String patternToMatch = "Deployed \"" + getAppclientEarName(archive) + "\"";
       if (!awaitOutput(ap.output, patternToMatch)) {
+         Path filePath = Paths.get(ap.logFile.toURI());
+
+         System.out.println("-----------$$$$$$$$Start$$$$$$$$$$------------------");
+         List<String> content = Files.readAllLines(filePath);
+         for (String str : content) {
+            System.out.println(str);
+         }
+         System.out.println("-----------$$$$$$$$$$$$$$$$$$------------------");
          throw new RuntimeException("Cannot deploy " + getAppclientFullName(archive) + " to appclient ###" + ap.output.toString());
       }
+      Path filePath = Paths.get(ap.logFile.toURI());
+      System.out.println("-----------$$$$$$Start$$$$$$$$$$$$------------------");
+      List<String> content = Files.readAllLines(filePath);
+      for (String str : content) {
+         System.out.println(str);
+      }
+      System.out.println("-----------$$$$$$$$$$$$$$$$$$------------------");
       appclients.put(archive, ap);
       return ap.process;
    }
@@ -158,8 +184,8 @@ final class AppclientHelper
          //note on output streams closing: we're not caring about closing any here as it's quite a complex thing due to the TeeOutputStream nesting;
          //we're however still safe, given the ap.output is a ByteArrayOutputStream (whose .close() does nothing), ap.log is explicitly closed at
          //undeploy and closing appclientOS is a caller responsibility.
-
-         ap.log = new FileOutputStream(new File(getAppclientOutputDir(), appclientShortName + ".log-" + System.currentTimeMillis()));
+         ap.logFile = new File (getAppclientOutputDir() , appclientShortName + ".log-" + System.currentTimeMillis());
+         ap.log = new FileOutputStream(ap.logFile);
          @SuppressWarnings("resource")
          final OutputStream logOutputStreams = (appclientOS == null) ? ap.log : new TeeOutputStream(ap.log, appclientOS);
          printLogTrailer(logOutputStreams, appclientFullName);
@@ -209,6 +235,7 @@ final class AppclientHelper
          return ap;
       } catch (Exception e) {
          s.release();
+         e.printStackTrace();
          throw e;
       }
    }
@@ -245,7 +272,7 @@ final class AppclientHelper
 
    private static boolean awaitOutput(final OutputStream os, final String patternToMatch) throws InterruptedException {
       int countOfAttempts = 0;
-      final int maxCountOfAttempts = TIMEOUT * 10; // max wait time: default 2 minutes
+      final int maxCountOfAttempts = TIMEOUT * 2; // max wait time: default 2 minutes
       while (!os.toString().contains(patternToMatch))
       {
          Thread.sleep(500);
@@ -254,9 +281,6 @@ final class AppclientHelper
             return false;
          }
       }
-      System.out.println("------------log------------");
-      System.out.println(os.toString());
-      System.out.println("------------long end------------");
       return true;
    }
 

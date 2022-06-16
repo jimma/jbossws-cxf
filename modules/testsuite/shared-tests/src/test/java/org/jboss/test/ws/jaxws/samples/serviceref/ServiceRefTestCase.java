@@ -197,9 +197,6 @@ public class ServiceRefTestCase extends JBossWSTest
             JBossWSTestHelper.deployAppclient(fullAppclientDepName, appclientOS, "Hello World!");
          } catch (Throwable e) {
             e.printStackTrace();
-            System.out.println("---------------log------------------");
-            System.out.println(appclientOS.toString());
-            System.out.println("#####################################");
             throw e;
          }
          // wait till appclient stops
