@@ -245,7 +245,7 @@ final class AppclientHelper
 
    private static boolean awaitOutput(final OutputStream os, final String patternToMatch) throws InterruptedException {
       int countOfAttempts = 0;
-      final int maxCountOfAttempts = TIMEOUT * 2; // max wait time: default 2 minutes
+      final int maxCountOfAttempts = TIMEOUT * 10; // max wait time: default 2 minutes
       while (!os.toString().contains(patternToMatch))
       {
          Thread.sleep(500);
