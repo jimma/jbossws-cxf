@@ -90,7 +90,7 @@ final class AppclientHelper
       final AppclientProcess ap = newAppclientProcess(archive, appclientOS, appclientArgs);
       final String patternToMatch = "Deployed \"" + getAppclientEarName(archive) + "\"";
       if (!awaitOutput(ap.output, patternToMatch)) {
-         throw new RuntimeException("Cannot deploy " + getAppclientFullName(archive) + " to appclient");
+         throw new RuntimeException("Cannot deploy " + getAppclientFullName(archive) + " to appclient ###" + ap.output.toString());
       }
       appclients.put(archive, ap);
       return ap.process;
