@@ -254,6 +254,9 @@ final class AppclientHelper
             return false;
          }
       }
+      System.out.println("------------log------------");
+      System.out.println(os.toString());
+      System.out.println("------------long end------------");
       return true;
    }
 
