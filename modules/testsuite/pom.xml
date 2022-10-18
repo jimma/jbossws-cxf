@@ -243,6 +243,7 @@
           <skip>true</skip>
           <failIfNoTests>false</failIfNoTests>
           <runOrder>alphabetical</runOrder>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
         <executions>
           <execution>

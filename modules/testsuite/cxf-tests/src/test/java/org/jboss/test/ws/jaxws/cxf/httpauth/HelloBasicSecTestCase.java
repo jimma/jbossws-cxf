@@ -91,6 +91,9 @@ public class HelloBasicSecTestCase extends JBossWSTest
    {
       AuthenticationContext previousAuthContext = AuthenticationContext.getContextManager().getGlobalDefault();
       try {
+         System.out.println("---------------------------------");
+         System.out.println("test resource dir :" + JBossWSTestHelper.getTestResourcesDir());
+         System.out.println("---------------------------------");
          ElytronClientTestUtils.setElytronClientConfig(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/cxf/clientConfig/META-INF/wildfly-config-http-basic-auth.xml");
          QName serviceName = new QName("http://jboss.org/http/security", "HelloService");
          URL wsdlURL = getResourceURL("jaxws/cxf/httpauth/WEB-INF/wsdl/hello.wsdl");

@@ -15,8 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
-        java: ['11','17']
+        os: [windows-latest ]
+        java: ['11']
         wildfly-version: ['wildfly27dev']
 
     steps:
@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: wildfly/wildfly
-          path: './wildfly'
+          path: '../wildfly'
       - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -45,14 +45,14 @@ jobs:
         run: mvn -s ../.m2-settings.xml -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
-          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite clean install
+          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite -Dtest=HelloBasicSecTestCase clean install
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '${{ github.workspace }}/**/surefire-reports/*.*'
+          path: '${{ github.workspace }}/jbossws-cxf/**/*/surefire-reports/*.*'
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '${{ github.workspace }}/**/*.log'
+          path: '${{ github.workspace }}/jbossws-cxf/**/*.log'
