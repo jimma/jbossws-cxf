@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
+        os: [windows-latest ]
         java: ['11','17']
-        wildfly-version: ['wildfly27dev']
+        wildfly-version: ['wildfly2700']
 
     steps:
       - name: Checkout jbossws-cxf
@@ -45,7 +45,7 @@ jobs:
         run: mvn -s ../.m2-settings.xml -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} on WildFly ${{ matrix.wildfly-version }}
         run: |
-          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite clean install
+          mvn -s ./.m2-settings.xml -fae -P${{ matrix.wildfly-version }} -Ptestsuite -Dtests=HelloBasicSecTestCase clean install
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
