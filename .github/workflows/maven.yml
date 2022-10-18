@@ -50,7 +50,7 @@ jobs:
         if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '**/cxf-tests/target/surefire-reports/*.txt'
+          path: '${{ github.workspace }}/jbossws-cxf/modules/testsuite/cxf-tests/target/surefire-reports/*.txt'
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
