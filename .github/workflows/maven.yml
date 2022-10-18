@@ -51,8 +51,3 @@ jobs:
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
           path: '${{ github.workspace }}/modules/testsuite/cxf-tests/target/surefire-reports/*.txt'
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: server-logs-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '**/*/*.log'

@@ -104,7 +104,11 @@ public class HelloBasicSecTestCase extends JBossWSTest
          cxfClientConfigurer.setConfigProperties(proxy, null, null);
          int result = proxy.helloRequest("number");
          assertEquals(100, result);
-      } finally {
+      } catch (Throwable e) {
+         e.printStackTrace();
+         throw e;
+      }
+      finally {
          AuthenticationContext.getContextManager().setGlobalDefault(previousAuthContext);
       }
    }
