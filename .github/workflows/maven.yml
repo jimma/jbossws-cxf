@@ -50,9 +50,9 @@ jobs:
         if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '${{ github.workspace }}/jbossws-cxf/modules/**/*/surefire-reports/*.*'
+          path: '**/surefire-reports/*.txt'
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.wildfly-version }}
-          path: '${{ github.workspace }}/jbossws-cxf/modules/**/*.log'
+          path: '**/*/*.log'
