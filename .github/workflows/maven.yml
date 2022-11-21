@@ -25,7 +25,8 @@ jobs:
       - name: Checkout wildfly
         uses: actions/checkout@v2
         with:
-          repository: wildfly/wildfly
+          repository: jimma/wildfly
+          ref: cxf-4.0.0-jakarta
           path: './wildfly'
       - uses: actions/cache@v3
         with:
