@@ -39,7 +39,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
       - name: Setup OpenShift
-        uses: manusa/actions-setup-openshift@v1.1.5
+        uses: manusa/actions-setup-openshift@v1.1.4
         with:
           oc version: 'v3.11.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
