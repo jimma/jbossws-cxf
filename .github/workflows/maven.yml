@@ -26,9 +26,7 @@ jobs:
             kubernetes version: 'v1.25.4'
             github token: ${{ secrets.GITHUB_TOKEN }}
       - name: Interact with the cluster
-          run: kubectl get nodes
-      - name: Interact with the cluster
-        run: oc cluster status
+        run: kubectl get nodes
       - name: Checkout jbossws-cxf
         uses: actions/checkout@v2
       - name: Checkout wildfly
