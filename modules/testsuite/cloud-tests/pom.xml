@@ -16,6 +16,8 @@
 
     <properties>
         <warName>echo-ws</warName>
+        <imageName>jbossws-cxf-cloud-tests</imageName>
+        <imageTag>latest</imageTag>
     </properties>
 
     <dependencies>
@@ -108,6 +110,27 @@
                     </webResources>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.eclipse.jkube</groupId>
+                <artifactId>openshift-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <images>
+                        <image>
+                            <name>${imageName}:${imageTag}</name>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>resource</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -139,6 +162,14 @@
                                 <layer>webservices</layer>
                             </layers>
                             <filename>${warName}.war</filename>
+                            <image>
+                                <build>true</build>
+                                <!--push>true</push-->
+                                <docker-binary>docker</docker-binary>
+                                <name>${imageName}</name>
+                                <tag>${imageTag}</tag>
+                                <!--registry>quay.io</registry-->
+                            </image>
                         </configuration>
                         <executions>
                             <execution>
@@ -196,7 +227,7 @@
                                 <image>quay.io/wildfly/wildfly-runtime:latest</image>
                             </from>
                             <to>
-                                <image>jbossws-cxf-cloud-tests:latest</image>
+                                <image>${iamgeName}:${imageTag}</image>
                             </to>
                             <extraDirectories>
                                 <paths>
@@ -205,7 +236,6 @@
                                         <into>/opt/server</into>
                                     </path>
                                 </paths>
-                                <!--TODO: Look at how can we grant permission to data and log dir and use user jboss -->
                                 <permissions>
                                     <permission>
                                         <file>/opt/server/**/*</file>

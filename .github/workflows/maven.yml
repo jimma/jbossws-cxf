@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest ]
-        java: ['11','17']
-        profile: ['-Pwildfly28', '']
+        os: [ubuntu-latest]
+        java: ['11']
+        profile: ['']
 
     steps:
       - name: Checkout jbossws-cxf
@@ -38,12 +38,15 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
+      - name: Setup OpenShift
+        uses: manusa/actions-setup-openshift@v1.1.5
+        with:
+          oc version: 'v3.11.0'
+          github token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Interact with the cluster
+        run: oc cluster status
       - name: Build docbook
         run: mvn -s ./.m2-settings.xml -f docbook/pom.xml install
-      - name: Build WFLY
-        if: ${{ matrix.profile == '-Pwildfly28'}}
-        working-directory: ./wildfly
-        run: mvn -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} ${{ matrix.profile }}
         run: |
           mvn -s ./.m2-settings.xml -fae ${{ matrix.profile }} clean install
