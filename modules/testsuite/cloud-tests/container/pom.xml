@@ -16,9 +16,9 @@
 
     <properties>
         <warName>echo-ws</warName>
-        <imageName>jbossws-cxf-container-tests</imageName>
+        <imageName>${project.artifactId}</imageName>
         <imageTag>latest</imageTag>
-        <jkube.generator.name>jbossws-cxf-container-tests:latest</jkube.generator.name>
+        <jkube.generator.name>${project.artifactId}:latest</jkube.generator.name>
     </properties>
 
     <dependencies>
@@ -207,7 +207,7 @@
                                 <image>quay.io/wildfly/wildfly-runtime:latest</image>
                             </from>
                             <to>
-                                <image>${iamgeName}:${imageTag}</image>
+                                <image>${imageName}:${imageTag}</image>
                             </to>
                             <extraDirectories>
                                 <paths>
