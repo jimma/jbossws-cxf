@@ -171,6 +171,9 @@
                         <feature-pack>
                             <location>org.wildfly:wildfly-galleon-pack:${jboss.version}</location>
                         </feature-pack>
+                        <feature-pack>
+                            <location>org.wildfly.cloud:wildfly-cloud-galleon-pack:2.0.0.Final</location>
+                        </feature-pack>
                     </feature-packs>
                     <layers>
                         <layer>cloud-server</layer>
@@ -179,7 +182,7 @@
                     <filename>${project.artifactId}.war</filename>
                     <image>
                         <build>true</build>
-                        <!--push>true</push-->
+                        <push>true</push>
                         <docker-binary>docker</docker-binary>
                         <name>${project.artifactId}</name>
                         <tag>latest</tag>
@@ -188,6 +191,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>image</goal>
                         </goals>

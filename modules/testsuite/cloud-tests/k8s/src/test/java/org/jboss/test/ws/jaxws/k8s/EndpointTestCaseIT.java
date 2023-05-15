@@ -72,8 +72,6 @@ public class EndpointTestCaseIT extends WildFlyCloudTestCase {
         LocalPortForward p = k8sClient.services().withName("jbossws-cxf-k8s-tests").portForward(8080);
         URL baseURL = new URL("http://localhost:"+ p.getLocalPort() +  "/jbossws-cxf-k8s-tests/EndpointImpl");
         Endpoint endpoint = initPort(baseURL);
-        //we need a modify address config in WFLY
-        ((BindingProvider)endpoint).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, baseURL.toString());
         String echoed = endpoint.echo("from k8s pod");
         Assertions.assertEquals("Echo:from k8s pod", echoed);
     }

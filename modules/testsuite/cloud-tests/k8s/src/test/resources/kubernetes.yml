@@ -18,8 +18,7 @@ spec:
       containers:
         - name: jbossws-cxf-k8s-tests
           image: localhost:5000/jbossws-cxf-k8s-tests:latest
-          imagePullPolicy: IfNotPresent
-
+          imagePullPolicy: Always
           ports:
             - containerPort: 9990
               name: admin
