@@ -22,6 +22,12 @@
 package org.jboss.test.ws.jaxws.k8s;
 import static org.wildfly.test.cloud.common.WildflyTags.KUBERNETES;
 
+import io.fabric8.kubernetes.client.LocalPortForward;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
+import java.net.URL;
+import javax.xml.namespace.QName;
+import org.jboss.test.ws.jaxws.container.Endpoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -52,16 +58,31 @@ import org.wildfly.test.cloud.common.KubernetesResource;
 )
 public class EndpointTestCaseIT extends WildFlyCloudTestCase {
     @Inject
-    private KubernetesClient client;
+    private KubernetesClient k8sClient;
     @Inject
     private KubernetesList kubernetesList;
 
     @Test
     public void  checkWSEndpoint() throws Exception {
-        List<Pod> lst = client.pods().withLabel("app.kubernetes.io/name","jbossws-cxf-k8s-tests").list().getItems();
+        List<Pod> lst = k8sClient.pods().withLabel("app.kubernetes.io/name","jbossws-cxf-k8s-tests").list().getItems();
         Assertions.assertEquals(1, lst.size(), "More than one pod found with expected label " + lst);
         Pod first = lst.get(0);
-        Assertions.assertNotNull(first);
+        Assertions.assertNotNull(first, "pod isn't created");
+        Assertions.assertEquals("Running", first.getStatus().getPhase(), "Pod isn't running");
+        LocalPortForward p = k8sClient.services().withName("jbossws-cxf-k8s-tests").portForward(8080);
+        URL baseURL = new URL("http://localhost:"+ p.getLocalPort() +  "/jbossws-cxf-k8s-tests/EndpointImpl");
+        Endpoint endpoint = initPort(baseURL);
+        //we need a modify address config in WFLY
+        ((BindingProvider)endpoint).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, baseURL.toString());
+        String echoed = endpoint.echo("from k8s pod");
+        Assertions.assertEquals("Echo:from k8s pod", echoed);
     }
 
+    private Endpoint initPort(URL baseUrl) throws Exception {
+        QName serviceName = new QName("http://org.jboss.ws/cxf/container", "EndpointImplService");
+        URL wsdlURL = new URL(baseUrl + "?wsdl");
+        Service service = Service.create(wsdlURL, serviceName);
+        Endpoint proxy = service.getPort(Endpoint.class);
+        return proxy;
+    }
 }

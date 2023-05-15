@@ -38,12 +38,10 @@ metadata:
 spec:
   ports:
     - name: http
-      port: 80
-      protocol: TCP
+      port: 8080
       targetPort: 8080
     - name: admin
       port: 9990
-      protocol: TCP
       targetPort: 9990
   selector:
     app.kubernetes.io/name: jbossws-cxf-k8s-tests

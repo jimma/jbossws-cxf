@@ -179,7 +179,7 @@
                     <filename>${project.artifactId}.war</filename>
                     <image>
                         <build>true</build>
-                        <push>true</push>
+                        <!--push>true</push-->
                         <docker-binary>docker</docker-binary>
                         <name>${project.artifactId}</name>
                         <tag>latest</tag>
