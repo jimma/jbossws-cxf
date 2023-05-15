@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.client.LocalPortForward;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Service;
 import java.net.URL;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.jboss.test.ws.jaxws.container.Endpoint;
 import org.junit.jupiter.api.Assertions;
@@ -69,10 +70,11 @@ public class EndpointTestCaseIT extends WildFlyCloudTestCase {
         Pod first = lst.get(0);
         Assertions.assertNotNull(first, "pod isn't created");
         Assertions.assertEquals("Running", first.getStatus().getPhase(), "Pod isn't running");
-        LocalPortForward p = k8sClient.services().withName("jbossws-cxf-k8s-tests").portForward(8080);
-        URL baseURL = new URL("http://localhost:" + p.getLocalPort() + "/jbossws-cxf-k8s-tests/EndpointImpl");
-        Endpoint endpoint = initPort(baseURL);
-        String echoed = endpoint.echo("from k8s pod");
+        String  echoed = getHelper().doWithWebPortForward("", url -> {
+            URL baseURL = new URL(url, "/jbossws-cxf-k8s-tests/EndpointImpl");
+            Endpoint endpoint = initPort(baseURL);
+            return endpoint.echo("from k8s pod");
+        });
         Assertions.assertEquals("Echo:from k8s pod", echoed);
     }
 
