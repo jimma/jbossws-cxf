@@ -70,11 +70,11 @@ public class EndpointTestCaseIT extends WildFlyCloudTestCase {
         Pod first = lst.get(0);
         Assertions.assertNotNull(first, "pod isn't created");
         Assertions.assertEquals("Running", first.getStatus().getPhase(), "Pod isn't running");
-        String  echoed = getHelper().doWithWebPortForward("", url -> {
-            URL baseURL = new URL(url, "/jbossws-cxf-k8s-tests/EndpointImpl");
-            Endpoint endpoint = initPort(baseURL);
-            return endpoint.echo("from k8s pod");
-        });
+        LocalPortForward p = k8sClient.pods().withName("jbossws-cxf-k8s-tests/").portForward(8080);
+        Assertions.assertTrue(p.isAlive());
+        URL baseURL = new URL("http://127.0.0.1" + p.getLocalPort() + "/jbossws-cxf-k8s-tests/EndpointImpl");
+        Endpoint endpoint = initPort(baseURL);
+        String  echoed = endpoint.echo("from k8s pod");
         Assertions.assertEquals("Echo:from k8s pod", echoed);
     }
 
