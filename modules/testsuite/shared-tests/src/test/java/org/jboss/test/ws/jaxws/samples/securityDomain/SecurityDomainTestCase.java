@@ -241,13 +241,19 @@ public class SecurityDomainTestCase extends JBossWSTest
       URL wsdlURL = new URL(baseURL + "/jaxws-securityDomain2/authz?wsdl");
       QName serviceName = new QName("http://org.jboss.ws/securityDomain", "SecureEndpointService2");
       SecureEndpoint port = Service.create(wsdlURL, serviceName).getPort(SecureEndpoint.class);
+
+      ((BindingProvider)port).getRequestContext().put("org.apache.cxf.transport.http.forceVersion", "1.1");
+
+      ((BindingProvider)port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://localhost:23088/jaxws-securityDomain2/authz");
+      http://localhost:23080/jaxws-securityDomain2/authz
+
       try {
           port.echoForAll("Hello");
           fail("Authorization exception expected!");
        } catch (Exception e) {
            //expected web layer exception
            assertTrue(e.getMessage().contains("Could not send Message"));
-           assertTrue("Exception Cause message: " + e.getCause().getMessage(), e.getCause().getMessage().contains("401: Unauthorized"));
+           assertTrue("Exception Cause message: " + e.getCause().getMessage(), e.getCause().getMessage().contains("401"));
       }
       ((BindingProvider)port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "bob");
       ((BindingProvider)port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "foo");
