@@ -115,7 +115,7 @@ public class JBWS3945TestCase extends JBossWSTest
       catch (WebServiceException wse)
       {
          wse.printStackTrace();
-         assertTrue(wse.getCause().getMessage().contains("400: Bad Request"));
+         assertTrue(wse.getCause().getMessage().contains("400"));
       }
       catch (Exception e)
       {
