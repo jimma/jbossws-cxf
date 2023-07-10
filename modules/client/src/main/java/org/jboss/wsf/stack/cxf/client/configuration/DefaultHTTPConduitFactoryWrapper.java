@@ -129,10 +129,12 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
       set = set || (receiveTimeout != null);
       final String connection = (String)configuration.get(Constants.CXF_CLIENT_CONNECTION);
       set = set || (connection != null);
+      final String httpVersion = (String)configuration.get(Constants.CXF_CLIENT_HTTP_VERSION);
+      set = set || (httpVersion != null);
 
+      HTTPClientPolicy httpClientPolicy = conduit.getClient();
       if (set)
       {
-         HTTPClientPolicy httpClientPolicy = conduit.getClient();
          if (httpClientPolicy == null)
          {
             httpClientPolicy = new HTTPClientPolicy();
@@ -158,6 +160,18 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
          {
             httpClientPolicy.setConnection(ConnectionType.fromValue(connection));
          }
+         if (httpVersion != null) {
+            httpClientPolicy.setVersion(httpVersion);
+         }
+      } else {
+         //since CXF 4.0.1, client will enable the HTTP2 by default if server supports it.
+         //To make it backward compatible, we explicitly set the version to 1.1
+         if (httpClientPolicy == null)
+         {
+            httpClientPolicy = new HTTPClientPolicy();
+            conduit.setClient(httpClientPolicy);
+         }
+         httpClientPolicy.setVersion("1.1");
       }
    }
    
