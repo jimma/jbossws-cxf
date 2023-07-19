@@ -53,8 +53,6 @@ public class Constants
    public static final String CXF_CLIENT_CHUNKING_THRESHOLD = "cxf.client.chunkingThreshold";
    public static final String CXF_CLIENT_CONNECTION_TIMEOUT = "cxf.client.connectionTimeout";
    public static final String CXF_CLIENT_RECEIVE_TIMEOUT = "cxf.client.receiveTimeout";
-   //After CXF 4.0.1
-   public static final String CXF_CLIENT_HTTP_VERSION = "cxf.client.http.version";
    public static final String CXF_CLIENT_CONNECTION = "cxf.client.connection";
    public static final String CXF_TLS_CLIENT_DISABLE_CN_CHECK = "cxf.tls-client.disableCNCheck";
    

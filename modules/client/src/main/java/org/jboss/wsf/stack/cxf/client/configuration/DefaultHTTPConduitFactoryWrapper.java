@@ -42,7 +42,7 @@ import org.jboss.wsf.stack.cxf.client.Constants;
 /**
  * The default wrapper of HTTPConduitFactory, which gets default configuration values from a
  * map. The configuration map can also be populated by system properties.
- * 
+ *
  * @author alessio.soldano@jboss.com
  * @since 1-Apr-2015
  */
@@ -59,15 +59,15 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
       map.put(Constants.CXF_CLIENT_CONNECTION, SecurityActions.getSystemProperty(Constants.CXF_CLIENT_CONNECTION, null));
       defaultConfiguration = Collections.unmodifiableMap(map);
    }
-   
+
    private final Map<String, Object> configuration;
-   
+
    public DefaultHTTPConduitFactoryWrapper(HTTPConduitFactory delegate)
    {
       super(delegate);
       this.configuration = defaultConfiguration;
    }
-   
+
    public DefaultHTTPConduitFactoryWrapper(Map<String, Object> configuration, boolean useSystemDefault, HTTPConduitFactory delegate)
    {
       super(delegate);
@@ -90,7 +90,7 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
    }
 
    protected HTTPConduit createNewConduit(HTTPTransportFactory f, Bus b, EndpointInfo localInfo,
-         EndpointReferenceType target) throws IOException
+                                          EndpointReferenceType target) throws IOException
    {
       return new URLConnectionHTTPConduit(b, localInfo, target);
    }
@@ -100,7 +100,7 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
       configureTLSClient(conduit);
       configureHTTPClientPolicy(conduit);
    }
-   
+
    private void configureTLSClient(HTTPConduit conduit)
    {
       TLSClientParameters parameters = conduit.getTlsClientParameters();
@@ -114,7 +114,7 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
          conduit.setTlsClientParameters(parameters);
       }
    }
-   
+
    private void configureHTTPClientPolicy(HTTPConduit conduit)
    {
       boolean set = false;
@@ -129,12 +129,10 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
       set = set || (receiveTimeout != null);
       final String connection = (String)configuration.get(Constants.CXF_CLIENT_CONNECTION);
       set = set || (connection != null);
-      final String httpVersion = (String)configuration.get(Constants.CXF_CLIENT_HTTP_VERSION);
-      set = set || (httpVersion != null);
 
-      HTTPClientPolicy httpClientPolicy = conduit.getClient();
       if (set)
       {
+         HTTPClientPolicy httpClientPolicy = conduit.getClient();
          if (httpClientPolicy == null)
          {
             httpClientPolicy = new HTTPClientPolicy();
@@ -160,21 +158,9 @@ public final class DefaultHTTPConduitFactoryWrapper extends AbstractHTTPConduitF
          {
             httpClientPolicy.setConnection(ConnectionType.fromValue(connection));
          }
-         if (httpVersion != null) {
-            httpClientPolicy.setVersion(httpVersion);
-         }
-      } else {
-         //since CXF 4.0.1, client will enable the HTTP2 by default if server supports it.
-         //To make it backward compatible, we explicitly set the version to 1.1
-         if (httpClientPolicy == null)
-         {
-            httpClientPolicy = new HTTPClientPolicy();
-            conduit.setClient(httpClientPolicy);
-         }
-         httpClientPolicy.setVersion("1.1");
       }
    }
-   
+
    public static void install(Bus bus)
    {
       HTTPConduitFactory delegate = bus.getExtension(HTTPConduitFactory.class);

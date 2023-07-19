@@ -77,7 +77,12 @@ public class SOAPConnectionImpl extends SOAPConnection
        Exchange exch = new ExchangeImpl();
        outMessage.setExchange(exch);
        exch.put("org.apache.cxf.transport.process_fault_on_http_400", true); //JBWS-3945
-        
+       //Since CXF 4.0.1 , the JDK httpclient is introduced for http connection which both
+       //support HTTP/1.1 and HTTP/2, but there are several issues introduced too
+       // https://issues.apache.org/jira/browse/CXF-8903
+       // https://issues.apache.org/jira/browse/CXF-8885
+       // we force to use the old urlconnection until these issues are fixed in CXF
+       exch.put("force.urlconnection.http.conduit", true);
        // sent SOAPMessage
        try 
        {

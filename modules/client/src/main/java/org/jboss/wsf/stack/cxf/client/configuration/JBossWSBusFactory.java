@@ -78,6 +78,12 @@ public class JBossWSBusFactory extends CXFBusFactory
       final ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
       resourceManager.addResourceResolver(JBossWSResourceInjectionResolver.getInstance());
       SecurityProviderConfig.setup(bus);
+      //Since CXF 4.0.1 , the JDK httpclient is introduced for http connection which both
+      //support HTTP/1.1 and HTTP/2, but there are several issues introduced too
+      // https://issues.apache.org/jira/browse/CXF-8903
+      // https://issues.apache.org/jira/browse/CXF-8885
+      // we force to use the old urlconnection until these issues are fixed in CXF
+      bus.setProperty("force.urlconnection.http.conduit", true);
    }
    
    /**
