@@ -61,14 +61,16 @@ public final class UsernameTestCase extends JBossWSTest
    public static WebArchive createDeployment() {
       WebArchive archive = ShrinkWrap.create(WebArchive.class, "jaxws-samples-wsse-policy-username-unsecure-transport.war");
       archive.setManifest(new StringAsset("Manifest-Version: 1.0\n"
-                  + "Dependencies: org.jboss.ws.cxf.jbossws-cxf-client\n"))
+                  + "Dependencies: org.jboss.ws.cxf.jbossws-cxf-client,org.wildfly.security.elytron\n"))
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.JavaFirstServiceIface.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.JavaFirstServiceImpl.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.ServerUsernamePasswordCallback.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.ServiceIface.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.ServiceImpl.class)
+            .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.basic.RolesInteceptor.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.jaxws.SayHello.class)
             .addClass(org.jboss.test.ws.jaxws.samples.wsse.policy.jaxws.SayHelloResponse.class)
+              .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/basic/username-unsecure-transport/WEB-INF/jboss-web.xml"), "jboss-web.xml")
             .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/basic/username-unsecure-transport/JavaFirstPolicy.xml"), "classes/JavaFirstPolicy.xml")
             .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/basic/username-unsecure-transport/WEB-INF/jaxws-endpoint-config.xml"), "jaxws-endpoint-config.xml")
             .addAsWebInfResource(new File(JBossWSTestHelper.getTestResourcesDir() + "/jaxws/samples/wsse/policy/basic/username-unsecure-transport/WEB-INF/wsdl/SecurityService.wsdl"), "wsdl/SecurityService.wsdl")

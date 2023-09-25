@@ -23,6 +23,7 @@ package org.jboss.test.ws.jaxws.samples.wsse.policy.basic;
 
 import javax.jws.WebService;
 
+import org.apache.cxf.interceptor.InInterceptors;
 import org.jboss.ws.api.annotation.EndpointConfig;
 
 @WebService
@@ -34,6 +35,8 @@ import org.jboss.ws.api.annotation.EndpointConfig;
    endpointInterface = "org.jboss.test.ws.jaxws.samples.wsse.policy.basic.ServiceIface"
 )
 @EndpointConfig(configFile = "WEB-INF/jaxws-endpoint-config.xml", configName = "Custom WS-Security Endpoint")
+@InInterceptors(interceptors = { "org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingPolicyInterceptor",
+        "org.jboss.test.ws.jaxws.samples.wsse.policy.basic.RolesInteceptor" })
 public class ServiceImpl implements ServiceIface
 {
    public String sayHello()
