@@ -257,4 +257,8 @@ public interface Loggers extends BasicLogger
     @LogMessage(level = ERROR)
     @Message(id = 24115, value = "Failed to compute UsernameToken profile digest from expected password")
     void failedToComputeUsernameTokenProfileDigest();
+
+    @LogMessage(level = ERROR)
+    @Message(id = 24116, value = "Failed to create the required component to authenticate principal : %s")
+    void failedToAuthenticate(String principal, @Cause Throwable cause);
 }

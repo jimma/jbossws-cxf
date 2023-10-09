@@ -24,24 +24,27 @@ import static org.jboss.wsf.stack.cxf.i18n.Messages.MESSAGES;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.common.security.SimplePrincipal;
 import org.jboss.wsf.spi.security.SecurityDomainContext;
-import org.jboss.wsf.stack.cxf.security.authentication.callback.UsernameTokenCallbackHandler;
 import org.jboss.wsf.stack.cxf.security.nonce.NonceStore;
 import org.wildfly.security.auth.server.RealmIdentity;
 import org.wildfly.security.auth.server.RealmUnavailableException;
 import org.wildfly.security.auth.server.SecurityDomain;
 import org.wildfly.security.credential.PasswordCredential;
-import org.wildfly.security.password.interfaces.ClearPassword;
+import org.wildfly.security.password.Password;
+import org.wildfly.security.password.PasswordFactory;
+import org.wildfly.security.password.spec.ClearPasswordSpec;
 
 /**
  * Creates Subject instances after having authenticated / authorized the provided
@@ -84,7 +87,6 @@ public class SubjectCreator
       boolean TRACE = SECURITY_LOGGER.isTraceEnabled();
       if (TRACE)
          SECURITY_LOGGER.aboutToAuthenticate(ctx.getSecurityDomain());
-
       try {
          SecurityDomain securityDomain = ctx.getElytronSecurityDomain();
          if (securityDomain == null) {
@@ -95,14 +97,14 @@ public class SubjectCreator
          if (identity.equals(RealmIdentity.NON_EXISTENT) || identity.getCredential(PasswordCredential.class) == null) {
             throw MESSAGES.authenticationFailed(principal.getName());
          }
-         ClearPassword clearPassword = identity.getCredential(PasswordCredential.class).getPassword(ClearPassword.class);
-         // only realms supporting getCredential with clear password can be used with Username Token profile
-         if (clearPassword == null) {
-            throw MESSAGES.authenticationFailed(principal.getName());
-         }
-         String expectedPassword = new String(clearPassword.getPassword());
          if (isDigest && created != null && nonce != null) { // username token profile is using digest
             // verify client's digest
+            Password recoveredTwoWayPassword = identity.getCredential(PasswordCredential.class).getPassword();
+            PasswordFactory passwordFactory = PasswordFactory.getInstance(recoveredTwoWayPassword.getAlgorithm());
+            String expectedPassword = new String(passwordFactory.getKeySpec(passwordFactory.translate(recoveredTwoWayPassword), ClearPasswordSpec.class).getEncodedPassword());
+            if (expectedPassword.isEmpty()) {
+               throw MESSAGES.authenticationFailed(principal.getName());
+            }
             if (!getUsernameTokenPasswordDigest(nonce, created, expectedPassword).equals(password)) {
                throw MESSAGES.authenticationFailed(principal.getName());
             }
@@ -116,7 +118,8 @@ public class SubjectCreator
             }
          }
 
-      } catch (RealmUnavailableException e) {
+      } catch (RealmUnavailableException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+         SECURITY_LOGGER.failedToAuthenticate(principal.getName(), e);
          throw MESSAGES.authenticationFailed(principal.getName());
       }
 
