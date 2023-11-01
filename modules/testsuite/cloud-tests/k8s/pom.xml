@@ -13,6 +13,7 @@
     </parent>
     <modules>
         <module>common</module>
+        <module>arqcube</module>
         <module>images</module>
         <module>basic</module>
         <module>wsse</module>
@@ -25,11 +26,6 @@
         <version.rest.assured>5.3.1</version.rest.assured>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${version.junit.jupiter}</version>
-        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client</artifactId>
