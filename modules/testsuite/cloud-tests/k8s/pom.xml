@@ -13,8 +13,8 @@
     </parent>
     <modules>
         <module>common</module>
-        <module>arqcube</module>
         <module>images</module>
+        <module>arqcube</module>
         <module>basic</module>
         <module>wsse</module>
         <module>wstrust</module>
