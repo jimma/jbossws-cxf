@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import java.io.IOException;
 import java.net.URL;
 import javax.xml.namespace.QName;
+import org.arquillian.cube.kubernetes.annotations.KubernetesResource;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertNotNull;
 @Category(RequiresKubernetes.class)
 @RequiresKubernetes
 @RunWith(ArquillianConditionalRunner.class)
+@KubernetesResource("classpath:kubernetes.yml")
 public class EndpointArqCubeTest {
 
     @Named("jbossws-cxf-k8s-basic")
