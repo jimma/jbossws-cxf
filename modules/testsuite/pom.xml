@@ -190,44 +190,28 @@
             </goals>
             <configuration>
               <exportAntProperties>true</exportAntProperties>
-
               <target>
                 <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-                <math result="add_int_port-offset.cxf-tests.jboss_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8080" />
-                <math result="add_int_port-offset.cxf-tests.jboss_8443" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8443" />
-                <math result="add_int_port-offset.cxf-tests.jboss_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="9990" />
-                <math result="add_int_port-offset.cxf-tests.jboss_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8787" />
-
-                <math result="add_int_port-offset.cxf-tests.ssl-mutual-auth_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8080" />
-                <math result="add_int_port-offset.cxf-tests.ssl-mutual-auth_8443" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8443" />
-                <math result="add_int_port-offset.cxf-tests.ssl-mutual-auth_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="9990" />
-                <math result="add_int_port-offset.cxf-tests.ssl-mutual-auth_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8787" />
-
-
-                <math result="add_int_port-offset.cxf-tests.default-config-tests_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.default-config-tests}" operand2="9990" />
-                <math result="add_int_port-offset.cxf-tests.default-config-tests_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.default-config-tests}" operand2="8787" />
-
-                <math result="add_int_port-offset.cxf-tests.jms_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="8080" />
-                <math result="add_int_port-offset.cxf-tests.jms_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="9990" />
-                <math result="add_int_port-offset.cxf-tests.jms_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="8787" />
-
-
-                <math result="add_int_port-offset.shared-tests.jboss_8080" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="8080" />
-                <math result="add_int_port-offset.shared-tests.jboss_8443" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="8443" />
-                <math result="add_int_port-offset.shared-tests.jboss_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="9990" />
-                <math result="add_int_port-offset.shared-tests.jboss_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="8787" />
-
-
-                <math result="add_int_port-offset.shared-tests.default-config-tests_8080" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="8080" />
-                <math result="add_int_port-offset.shared-tests.default-config-tests_8443" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="8443" />
-                <math result="add_int_port-offset.shared-tests.default-config-tests_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="9990" />
-                <math result="add_int_port-offset.shared-tests.default-config-tests_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="8787" />
-
-
-                <math result="add_int_port-offset.shared-tests.address-rewrite_8080" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="8080" />
-                <math result="add_int_port-offset.shared-tests.address-rewrite_8443" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="8443" />
-                <math result="add_int_port-offset.shared-tests.address-rewrite_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="9990" />
-                <math result="add_int_port-offset.shared-tests.address-rewrite_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="8787" />
+                <math result="cxf-tests.jboss_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8080" />
+                <math result="cxf-tests.jboss_8443" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8443" />
+                <math result="cxf-tests.jboss_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="9990" />
+                <math result="cxf-tests.jboss_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jboss}" operand2="8787" />
+                <math result="cxf-tests.ssl-mutual-auth_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8080" />
+                <math result="cxf-tests.ssl-mutual-auth_8443" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8443" />
+                <math result="cxf-tests.ssl-mutual-auth_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="9990" />
+                <math result="cxf-tests.ssl-mutual-auth_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.ssl-mutual-auth}" operand2="8787" />
+                <math result="cxf-tests.default-config-tests_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.default-config-tests}" operand2="9990" />
+                <math result="cxf-tests.default-config-tests_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.default-config-tests}" operand2="8787" />
+                <math result="cxf-tests.jms_8080" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="8080" />
+                <math result="cxf-tests.jms_9990" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="9990" />
+                <math result="cxf-tests.jms_8787" datatype="int" operation="+" operand1="${port-offset.cxf-tests.jms}" operand2="8787" />
+                <math result="shared-tests.jboss_8080" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="8080" />
+                <math result="shared-tests.jboss_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="9990" />
+                <math result="shared-tests.jboss_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.jboss}" operand2="8787" />
+                <math result="shared-tests.default-config-tests_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="9990" />
+                <math result="shared-tests.default-config-tests_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.default-config-tests}" operand2="8787" />
+                <math result="shared-tests.address-rewrite_9990" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="9990" />
+                <math result="shared-tests.address-rewrite_8787" datatype="int" operation="+" operand1="${port-offset.shared-tests.address-rewrite}" operand2="8787" />
               </target>
             </configuration>
           </execution>

@@ -25,7 +25,7 @@
  </binding>
  <service name="Service">
   <port binding="tns:HelloIfaceBinding" name="HelloImplPort">
-   <soap:address location="http://@jboss.bind.address@:@add_int_port-offset.shared-tests.jboss_8080@/foo/bar"/>
+   <soap:address location="http://@jboss.bind.address@:@shared-tests.jboss_8080@/foo/bar"/>
   </port>
  </service>
 </definitions>
