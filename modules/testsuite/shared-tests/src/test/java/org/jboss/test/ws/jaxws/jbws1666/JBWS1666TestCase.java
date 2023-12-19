@@ -117,6 +117,7 @@ public class JBWS1666TestCase extends JBossWSTest
 
    private void runJBossModulesClient(String clientJar) throws Exception {
 
+      long start = System.currentTimeMillis();
       StringBuilder sbuf = new StringBuilder();
 
       // java cmd
@@ -156,6 +157,7 @@ public class JBWS1666TestCase extends JBossWSTest
       final String command = sbuf.toString();
       ByteArrayOutputStream bout = new ByteArrayOutputStream();
       executeCommand(command, bout);
+      System.out.println("***** It takes " + (System.currentTimeMillis() - start) + "ms to execute: " + clientJar);
       //check result (includes check on Provider impl, which might be affected by missing jakarta.xml.ws.api module dependency
       assertEquals(Provider.provider().getClass().getName() + ", " + TestClient.REQ_STR, readFirstLine(bout));
    }

@@ -510,10 +510,10 @@
     Descr: redirect console logs to file
     -->
     <profile>
-      <id>logRedirect</id>
+      <id>nologRedirect</id>
       <activation>
         <property>
-          <name>!noLogRedirect</name>
+          <name>!logRedirect</name>
         </property>
       </activation>
       <build>
@@ -521,7 +521,7 @@
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <redirectTestOutputToFile>true</redirectTestOutputToFile>
+              <redirectTestOutputToFile>false</redirectTestOutputToFile>
             </configuration>
           </plugin>
         </plugins>
