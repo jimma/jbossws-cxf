@@ -163,6 +163,11 @@ public abstract class JBossWSTest extends Assert
    private static void executeCommand(List<String> command, OutputStream os, String message, Map<String, String> env) throws IOException
    {
       ProcessBuilder pb = new ProcessBuilder(command);
+      if (System.getProperty("os.name").toLowerCase().contains("win")) {
+         pb.environment().put("NOPAUSE", "true");
+      }
+
+
       if (env != null)
       {
          for (String variable : env.keySet())
