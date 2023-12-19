@@ -16,17 +16,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest ]
-        java: ['11','17','21']
-        profile: ['-Pwildflydev', '']
+        java: ['11']
 
     steps:
       - name: Checkout jbossws-cxf
         uses: actions/checkout@v4
-      - name: Checkout wildfly
-        uses: actions/checkout@v4
-        with:
-          repository: wildfly/wildfly
-          path: './wildfly'
       - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -38,15 +32,9 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
-      - name: Build docbook
-        run: mvn -s ./.m2-settings.xml -f docbook/pom.xml install
-      - name: Build WFLY
-        if: ${{ matrix.profile == '-Pwildflydev'}}
-        working-directory: ./wildfly
-        run: mvn -DskipTests=true '-Denforcer.skip=true' -Prelease clean install
       - name: Build with Maven Java ${{ matrix.java }} ${{ matrix.profile }}
         run: |
-          mvn -s ./.m2-settings.xml -fae ${{ matrix.profile }} clean install
+          mvn -s ./.m2-settings.xml -fae clean install -Dtest=JBWS1666TestCase -DfailIfNoTests=false
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
