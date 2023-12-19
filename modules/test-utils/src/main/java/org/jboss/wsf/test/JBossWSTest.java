@@ -174,9 +174,9 @@ public abstract class JBossWSTest extends Assert
       Process p = pb.start();
       try
       {
-         boolean statusCode = p.waitFor(10, TimeUnit.SECONDS);
+         int statusCode = p.waitFor();
          String fallbackMessage = "Process did exit with status " + statusCode;
-         assertTrue(message != null ? message : fallbackMessage, statusCode);
+         assertTrue(message != null ? message : fallbackMessage, statusCode == 0);
          p.getInputStream().transferTo(os == null ? System.out : os);
          p.getErrorStream().transferTo(System.err);
       }
