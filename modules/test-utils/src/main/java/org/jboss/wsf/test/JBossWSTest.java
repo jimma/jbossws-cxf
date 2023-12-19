@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServerConnection;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -171,20 +172,13 @@ public abstract class JBossWSTest extends Assert
       }
       long start = System.currentTimeMillis();
       Process p = pb.start();
-      CopyJob inputStreamJob = new CopyJob(p.getInputStream(), os == null ? System.out : os);
-      CopyJob errorStreamJob = new CopyJob(p.getErrorStream(), System.err);
-      // unfortunately the following threads are needed because of Windows behavior
-      Thread inputJob = new Thread(inputStreamJob);
-      Thread outputJob = new Thread(errorStreamJob);
       try
-      {  
-         inputJob.start();
-         inputJob.join(COPY_JOB_TIMEOUT);
-         outputJob.start();
-         outputJob.join(COPY_JOB_TIMEOUT);
-         int statusCode = p.waitFor();
-         String fallbackMessage = "Process did exit with status " + statusCode; 
-         assertTrue(message != null ? message : fallbackMessage, statusCode == 0);
+      {
+         boolean statusCode = p.waitFor(10, TimeUnit.SECONDS);
+         String fallbackMessage = "Process did exit with status " + statusCode;
+         assertTrue(message != null ? message : fallbackMessage, statusCode);
+         p.getInputStream().transferTo(os == null ? System.out : os);
+         p.getErrorStream().transferTo(System.err);
       }
       catch (InterruptedException ie)
       {
@@ -192,8 +186,6 @@ public abstract class JBossWSTest extends Assert
       }
       finally
       {
-         inputStreamJob.kill();
-         errorStreamJob.kill();
          p.destroy();
       }
       System.out.println("$$$$$$ process start and execution takes : " + (System.currentTimeMillis()-start) + "ms");
