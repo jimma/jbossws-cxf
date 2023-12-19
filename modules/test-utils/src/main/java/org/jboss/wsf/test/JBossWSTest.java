@@ -169,6 +169,7 @@ public abstract class JBossWSTest extends Assert
             pb.environment().put(variable, env.get(variable));
          }
       }
+      long start = System.currentTimeMillis();
       Process p = pb.start();
       CopyJob inputStreamJob = new CopyJob(p.getInputStream(), os == null ? System.out : os);
       CopyJob errorStreamJob = new CopyJob(p.getErrorStream(), System.err);
@@ -195,6 +196,7 @@ public abstract class JBossWSTest extends Assert
          errorStreamJob.kill();
          p.destroy();
       }
+      System.out.println("$$$$$$ process start and execution takes : " + (System.currentTimeMillis()-start) + "ms");
    }
 
    public static MBeanServerConnection getServer() throws NamingException
