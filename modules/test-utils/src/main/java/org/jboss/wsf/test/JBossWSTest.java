@@ -18,9 +18,14 @@
  */
 package org.jboss.wsf.test;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -61,92 +66,86 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:ropalka@redhat.com">Richard Opalka</a>
  * @author <a href="mailto:alessio.soldano@jboss.com">Alessio Soldano</a>
  */
-public abstract class JBossWSTest extends Assert
-{
+public abstract class JBossWSTest extends Assert {
    protected static Logger log = Logger.getLogger(JBossWSTest.class.getName());
    public static final String SYSPROP_COPY_JOB_TIMEOUT = "test.copy.job.timeout";
    public static final String CXF_TESTS_GROUP_QUALIFIER = "cxf-tests";
    public static final String SHARED_TESTS_GROUP_QUALIFIER = "shared-tests";
    private static final int COPY_JOB_TIMEOUT = Integer.getInteger(SYSPROP_COPY_JOB_TIMEOUT, File.pathSeparatorChar == ':' ? 5000 : 60000); //60s on Windows, 5s on UNIX and Mac
-   
-   public JBossWSTest()
-   {
+
+   public JBossWSTest() {
    }
 
 
    /**
     * Execute <b>command</b> in separate process.
+    *
     * @param command command to execute
     * @throws IOException if I/O error occurs
     */
-   public static void executeCommand(String command) throws IOException
-   {
+   public static void executeCommand(String command) throws IOException {
       executeCommand(command, null, null, null);
    }
 
    /**
     * Execute <b>command</b> in separate process. If process will fail, display custom <b>message</b> in assertion.
+    *
     * @param command command to execute
     * @param message message to display if assertion fails
     * @throws IOException if I/O error occurs
     */
-   public static void executeCommand(String command, String message) throws IOException
-   {
+   public static void executeCommand(String command, String message) throws IOException {
       executeCommand(command, null, message, null);
    }
 
    /**
     * Execute <b>command</b> in separate process, copy process input to <b>os</b>.
+    *
     * @param command command to execute
-    * @param os output stream to copy process input to. If null, <b>System.out</b> will be used
+    * @param os      output stream to copy process input to. If null, <b>System.out</b> will be used
     * @throws IOException if I/O error occurs
     */
-   public static void executeCommand(String command, OutputStream os) throws IOException
-   {
+   public static void executeCommand(String command, OutputStream os) throws IOException {
       executeCommand(command, os, null, null);
    }
 
    /**
     * Execute <b>command</b> in separate process, copy process input to <b>os</b>. If process will fail, display custom <b>message</b> in assertion.
+    *
     * @param command command to execute
-    * @param os output stream to copy process input to. If null, <b>System.out</b> will be used
+    * @param os      output stream to copy process input to. If null, <b>System.out</b> will be used
     * @param message message to display if assertion fails
     * @throws IOException if I/O error occurs
     */
-   public static void executeCommand(String command, OutputStream os, String message) throws IOException
-   {
+   public static void executeCommand(String command, OutputStream os, String message) throws IOException {
       executeCommand(command, os, message, null);
    }
 
    /**
     * Execute <b>command</b> in separate process, copy process input to <b>os</b>. If process will fail, display custom <b>message</b> in assertion.
+    *
     * @param command command to execute
-    * @param os output stream to copy process input to. If null, <b>System.out</b> will be used
+    * @param os      output stream to copy process input to. If null, <b>System.out</b> will be used
     * @param message message to display if assertion fails
-    * @param env environment
+    * @param env     environment
     * @throws IOException if I/O error occurs
     */
-   public static void executeCommand(String command, OutputStream os, String message, Map<String, String> env) throws IOException
-   {
+   public static void executeCommand(String command, OutputStream os, String message, Map<String, String> env) throws IOException {
       if (command == null)
-         throw new NullPointerException( "Command cannot be null" );
+         throw new NullPointerException("Command cannot be null");
 
       log.info("Executing command: " + command);
 
       StringTokenizer st = new StringTokenizer(command, " \t\r");
       List<String> tokenizedCommand = new LinkedList<String>();
-      while (st.hasMoreTokens())
-      {
+      while (st.hasMoreTokens()) {
          // PRECONDITION: command doesn't contain whitespaces in the paths
          tokenizedCommand.add(st.nextToken());
       }
 
-      try
-      {
+      try {
          executeCommand(tokenizedCommand, os, message, env);
-      }
-      catch (IOException e)
-      {
+      } catch (IOException e) {
          log.warn("Make sure there are no whitespaces in command paths", e);
          throw e;
       }
@@ -154,24 +153,22 @@ public abstract class JBossWSTest extends Assert
 
    /**
     * Execute <b>command</b> in separate process, copy process input to <b>os</b>. If process will fail, display custom <b>message</b> in assertion.
+    *
     * @param command command to execute
-    * @param os output stream to copy process input to. If null, <b>System.out</b> will be used
+    * @param os      output stream to copy process input to. If null, <b>System.out</b> will be used
     * @param message message to display if assertion fails
-    * @param env environment
+    * @param env     environment
     * @throws IOException if I/O error occurs
     */
-   private static void executeCommand(List<String> command, OutputStream os, String message, Map<String, String> env) throws IOException
-   {
+   private static void executeCommand(List<String> command, OutputStream os, String message, Map<String, String> env) throws IOException {
       ProcessBuilder pb = new ProcessBuilder(command);
       if (System.getProperty("os.name").toLowerCase().contains("win")) {
          pb.environment().put("NOPAUSE", "true");
       }
 
 
-      if (env != null)
-      {
-         for (String variable : env.keySet())
-         {
+      if (env != null) {
+         for (String variable : env.keySet()) {
             pb.environment().put(variable, env.get(variable));
          }
       }
@@ -179,108 +176,92 @@ public abstract class JBossWSTest extends Assert
 
       Process p = pb.start();
       System.out.println("------after pb.start() the process -----");
-      try
-      {
-         p.getInputStream().transferTo(os == null ? System.out : os);
-         p.getErrorStream().transferTo(System.err);
+      try {
+         StreamReader inputStreamReader = new StreamReader(p.getInputStream(), (os == null ? System.out : os));
+         StreamReader errStreamReader = new StreamReader(p.getErrorStream(), System.err);
+         Thread readerThread = new Thread(inputStreamReader);
+         Thread errReaderThread = new Thread(errStreamReader);
+         readerThread.start();
+         errReaderThread.start();
          int statusCode = p.waitFor();
          String fallbackMessage = "Process did exit with status " + statusCode;
          assertTrue(message != null ? message : fallbackMessage, statusCode == 0);
 
-      }
-      catch (InterruptedException ie)
-      {
+      } catch (InterruptedException ie) {
          ie.printStackTrace(System.err);
-      }
-      finally
-      {
+      } finally {
          p.destroy();
       }
-      System.out.println("$$$$$$ process start and execution takes : " + (System.currentTimeMillis()-start) + "ms");
+      System.out.println("$$$$$$ process start and execution takes : " + (System.currentTimeMillis() - start) + "ms");
    }
 
-   public static MBeanServerConnection getServer() throws NamingException
-   {
+   public static MBeanServerConnection getServer() throws NamingException {
       return JBossWSTestHelper.getServer();
    }
 
-   public static boolean isIntegrationCXF()
-   {
+   public static boolean isIntegrationCXF() {
       return JBossWSTestHelper.isIntegrationCXF();
    }
 
-   public static String getServerHost()
-   {
+   public static String getServerHost() {
       return JBossWSTestHelper.getServerHost();
    }
-   
-   public static String getInitialContextFactory()
-   {
+
+   public static String getInitialContextFactory() {
       return JBossWSTestHelper.getInitialContextFactory();
    }
 
-   public static String getRemotingProtocol()
-   {
+   public static String getRemotingProtocol() {
       return JBossWSTestHelper.getRemotingProtocol();
    }
 
-   public static int getServerPort()
-   {
+   public static int getServerPort() {
       return JBossWSTestHelper.getServerPort();
    }
 
-   public static int getServerPort(String groupQualifier, String containerQualifier)
-   {
+   public static int getServerPort(String groupQualifier, String containerQualifier) {
       return JBossWSTestHelper.getServerPort(groupQualifier, containerQualifier);
    }
-   
-   public static int getSecureServerPort(String groupQualifier, String containerQualifier) 
-   {
-	   return JBossWSTestHelper.getSecureServerPort(groupQualifier, containerQualifier);
+
+   public static int getSecureServerPort(String groupQualifier, String containerQualifier) {
+      return JBossWSTestHelper.getSecureServerPort(groupQualifier, containerQualifier);
    }
 
-   public static File getArchiveFile(String archive)
-   {
+   public static File getArchiveFile(String archive) {
       return JBossWSTestHelper.getArchiveFile(archive);
    }
 
-   public static URL getArchiveURL(String archive) throws MalformedURLException
-   {
+   public static URL getArchiveURL(String archive) throws MalformedURLException {
       return JBossWSTestHelper.getArchiveURL(archive);
    }
 
-   public static File getResourceFile(String resource)
-   {
+   public static File getResourceFile(String resource) {
       return JBossWSTestHelper.getResourceFile(resource);
    }
 
-   public static URL getResourceURL(String resource) throws MalformedURLException
-   {
+   public static URL getResourceURL(String resource) throws MalformedURLException {
       return JBossWSTestHelper.getResourceURL(resource);
    }
 
-   public static File createResourceFile(String filename)
-   {
+   public static File createResourceFile(String filename) {
       File resDir = new File(JBossWSTestHelper.getTestResourcesDir());
       return new File(resDir.getAbsolutePath() + File.separator + filename);
    }
 
-   public static File createResourceFile(File parent, String filename)
-   {
+   public static File createResourceFile(File parent, String filename) {
       return new File(parent, filename);
    }
 
-   /** Get the server remote env context
+   /**
+    * Get the server remote env context
     * Every test calling this method have to ensure InitialContext.close()
     * method is called at end of test to clean up all associated caches.
     */
-   public static InitialContext getServerInitialContext() throws NamingException, IOException
-   {
+   public static InitialContext getServerInitialContext() throws NamingException, IOException {
       return getServerInitialContext(null, null);
    }
-   
-   public static InitialContext getServerInitialContext(String groupQualifier, String containerQualifier) throws NamingException, IOException
-   {
+
+   public static InitialContext getServerInitialContext(String groupQualifier, String containerQualifier) throws NamingException, IOException {
       final Hashtable<String, String> env = new Hashtable<String, String>();
       env.put("java.naming.factory.initial", getInitialContextFactory());
       env.put("java.naming.factory.url.pkgs", "org.jboss.ejb.client.naming:org.jboss.naming.remote.client");
@@ -291,143 +272,117 @@ public abstract class JBossWSTest extends Assert
       return new InitialContext(env);
    }
 
-   public static void assertEquals(Element expElement, Element wasElement, boolean ignoreWhitespace)
-   {
+   public static void assertEquals(Element expElement, Element wasElement, boolean ignoreWhitespace) {
       normalizeWhitespace(expElement, ignoreWhitespace);
       normalizeWhitespace(wasElement, ignoreWhitespace);
       String expStr = DOMWriter.printNode(expElement, false);
       String wasStr = DOMWriter.printNode(wasElement, false);
-      if (expStr.equals(wasStr) == false)
-      {
+      if (expStr.equals(wasStr) == false) {
          System.out.println("\nExp: " + expStr + "\nWas: " + wasStr);
       }
       assertEquals(expStr, wasStr);
    }
 
-   public static void assertEquals(Element expElement, Element wasElement)
-   {
+   public static void assertEquals(Element expElement, Element wasElement) {
       assertEquals(expElement, wasElement, false);
    }
 
-   public static void assertEquals(Object exp, Object was)
-   {
+   public static void assertEquals(Object exp, Object was) {
       if (exp instanceof Object[] && was instanceof Object[])
-         assertEqualsArray((Object[])exp, (Object[])was);
+         assertEqualsArray((Object[]) exp, (Object[]) was);
       else if (exp instanceof byte[] && was instanceof byte[])
-         assertEqualsArray((byte[])exp, (byte[])was);
+         assertEqualsArray((byte[]) exp, (byte[]) was);
       else if (exp instanceof boolean[] && was instanceof boolean[])
-         assertEqualsArray((boolean[])exp, (boolean[])was);
+         assertEqualsArray((boolean[]) exp, (boolean[]) was);
       else if (exp instanceof short[] && was instanceof short[])
-         assertEqualsArray((short[])exp, (short[])was);
+         assertEqualsArray((short[]) exp, (short[]) was);
       else if (exp instanceof int[] && was instanceof int[])
-         assertEqualsArray((int[])exp, (int[])was);
+         assertEqualsArray((int[]) exp, (int[]) was);
       else if (exp instanceof long[] && was instanceof long[])
-         assertEqualsArray((long[])exp, (long[])was);
+         assertEqualsArray((long[]) exp, (long[]) was);
       else if (exp instanceof float[] && was instanceof float[])
-         assertEqualsArray((float[])exp, (float[])was);
+         assertEqualsArray((float[]) exp, (float[]) was);
       else if (exp instanceof double[] && was instanceof double[])
-         assertEqualsArray((double[])exp, (double[])was);
+         assertEqualsArray((double[]) exp, (double[]) was);
       else
          Assert.assertEquals(exp, was);
    }
 
-   private static void assertEqualsArray(Object[] exp, Object[] was)
-   {
+   private static void assertEqualsArray(Object[] exp, Object[] was) {
       if (exp == null && was == null)
          return;
 
-      if (exp != null && was != null)
-      {
-         if (exp.length != was.length)
-         {
+      if (exp != null && was != null) {
+         if (exp.length != was.length) {
             fail("Expected <" + exp.length + "> array items, but was <" + was.length + ">");
-         }
-         else
-         {
-            for (int i = 0; i < exp.length; i++)
-            {
+         } else {
+            for (int i = 0; i < exp.length; i++) {
 
                Object compExp = exp[i];
                Object compWas = was[i];
                assertEquals(compExp, compWas);
             }
          }
-      }
-      else if (exp == null)
-      {
+      } else if (exp == null) {
          fail("Expected a null array, but was: " + Arrays.asList(was));
-      }
-      else if (was == null)
-      {
+      } else if (was == null) {
          fail("Expected " + Arrays.asList(exp) + ", but was: null");
       }
    }
 
-   private static void assertEqualsArray(byte[] exp, byte[] was)
-   {
+   private static void assertEqualsArray(byte[] exp, byte[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(boolean[] exp, boolean[] was)
-   {
+   private static void assertEqualsArray(boolean[] exp, boolean[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(short[] exp, short[] was)
-   {
+   private static void assertEqualsArray(short[] exp, short[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(int[] exp, int[] was)
-   {
+   private static void assertEqualsArray(int[] exp, int[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(long[] exp, long[] was)
-   {
+   private static void assertEqualsArray(long[] exp, long[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(float[] exp, float[] was)
-   {
+   private static void assertEqualsArray(float[] exp, float[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   private static void assertEqualsArray(double[] exp, double[] was)
-   {
+   private static void assertEqualsArray(double[] exp, double[] was) {
       assertTrue("Arrays don't match", Arrays.equals(exp, was));
    }
 
-   /** Removes whitespace text nodes if they have an element sibling.
+   /**
+    * Removes whitespace text nodes if they have an element sibling.
     */
-   private static void normalizeWhitespace(Element element, boolean ignoreWhitespace)
-   {
+   private static void normalizeWhitespace(Element element, boolean ignoreWhitespace) {
       boolean hasChildElement = false;
       ArrayList<Node> toDetach = new ArrayList<Node>();
 
       NodeList childNodes = element.getChildNodes();
-      for (int i = 0; i < childNodes.getLength(); i++)
-      {
+      for (int i = 0; i < childNodes.getLength(); i++) {
          Node node = childNodes.item(i);
-         if (node.getNodeType() == Node.TEXT_NODE)
-         {
+         if (node.getNodeType() == Node.TEXT_NODE) {
             String nodeValue = node.getNodeValue();
             if (nodeValue.trim().length() == 0)
                toDetach.add(node);
          }
-         if (node.getNodeType() == Node.ELEMENT_NODE)
-         {
-            normalizeWhitespace((Element)node, ignoreWhitespace);
+         if (node.getNodeType() == Node.ELEMENT_NODE) {
+            normalizeWhitespace((Element) node, ignoreWhitespace);
             hasChildElement = true;
          }
       }
 
       // remove whitespace nodes
-      if (hasChildElement || ignoreWhitespace)
-      {
+      if (hasChildElement || ignoreWhitespace) {
          Iterator<Node> it = toDetach.iterator();
-         while (it.hasNext())
-         {
+         while (it.hasNext()) {
             Node whiteSpaceNode = it.next();
             element.removeChild(whiteSpaceNode);
          }
@@ -436,9 +391,9 @@ public abstract class JBossWSTest extends Assert
 
    @Rule
    public TestRule watcher = new TestWatcher() {
-      
+
       private ClassLoader classLoader = null;
-      
+
       protected void starting(Description description) {
          final String cjp = getClientJarPaths();
          if (cjp == null || cjp.trim().isEmpty()) {
@@ -446,14 +401,14 @@ public abstract class JBossWSTest extends Assert
          }
          if (description.getAnnotation(WrapThreadContextClassLoader.class) != null) {
             classLoader = Thread.currentThread().getContextClassLoader();
-            
+
             StringTokenizer st = new StringTokenizer(cjp, ", ");
             URL[] archives = new URL[st.countTokens()];
 
             try {
                for (int i = 0; i < archives.length; i++)
                   archives[i] = new File(JBossWSTestHelper.getTestArchiveDir(), st.nextToken()).toURI().toURL();
-               
+
                URLClassLoader cl = new URLClassLoader(archives, classLoader);
                Thread.currentThread().setContextClassLoader(cl);
             } catch (Exception e) {
@@ -461,24 +416,24 @@ public abstract class JBossWSTest extends Assert
             }
          }
       }
-      
+
       protected void finished(Description description) {
          if (classLoader != null && description.getAnnotation(WrapThreadContextClassLoader.class) != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
          }
       }
-      
+
       protected void skipped(AssumptionViolatedException e, Description description) {
          //This is a workaround for Maven Surefire not printing the skip message
          //when exclusion comes from a custom rule (e.g. our IgnoreContainer rule)
          //See https://github.com/apache/maven-surefire/pull/81 for proper fix.
-         
+
          //note, the exact system out text here is grepped by Hudson, do not change and/or turn into a Log4J log
          System.out.println("Test skipped: " + e.getMessage());
          super.skipped(e, description);
       }
    };
-   
+
    protected String getClientJarPaths() {
       return null;
    }
