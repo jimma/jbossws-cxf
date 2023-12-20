@@ -165,17 +165,13 @@ public abstract class JBossWSTest extends Assert {
       if (System.getProperty("os.name").toLowerCase().contains("win")) {
          pb.environment().put("NOPAUSE", "true");
       }
-
-
       if (env != null) {
          for (String variable : env.keySet()) {
             pb.environment().put(variable, env.get(variable));
          }
       }
       long start = System.currentTimeMillis();
-
       Process p = pb.start();
-      System.out.println("------after pb.start() the process -----");
       try {
          CopyJob inputStreamReader = new CopyJob(p.getInputStream(), (os == null ? System.out : os));
          CopyJob errStreamReader = new CopyJob(p.getErrorStream(), System.err);
