@@ -176,16 +176,17 @@ public abstract class JBossWSTest extends Assert
          }
       }
       long start = System.currentTimeMillis();
-      System.out.println("------start the process -----");
+
       Process p = pb.start();
       System.out.println("------after pb.start() the process -----");
       try
       {
+         p.getInputStream().transferTo(os == null ? System.out : os);
+         p.getErrorStream().transferTo(System.err);
          int statusCode = p.waitFor();
          String fallbackMessage = "Process did exit with status " + statusCode;
          assertTrue(message != null ? message : fallbackMessage, statusCode == 0);
-         p.getInputStream().transferTo(os == null ? System.out : os);
-         p.getErrorStream().transferTo(System.err);
+
       }
       catch (InterruptedException ie)
       {
