@@ -177,8 +177,8 @@ public abstract class JBossWSTest extends Assert {
       Process p = pb.start();
       System.out.println("------after pb.start() the process -----");
       try {
-         StreamReader inputStreamReader = new StreamReader(p.getInputStream(), (os == null ? System.out : os));
-         StreamReader errStreamReader = new StreamReader(p.getErrorStream(), System.err);
+         CopyJob inputStreamReader = new CopyJob(p.getInputStream(), (os == null ? System.out : os));
+         CopyJob errStreamReader = new CopyJob(p.getErrorStream(), System.err);
          Thread readerThread = new Thread(inputStreamReader);
          Thread errReaderThread = new Thread(errStreamReader);
          readerThread.start();
