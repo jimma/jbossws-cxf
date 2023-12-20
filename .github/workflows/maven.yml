@@ -34,7 +34,7 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven Java ${{ matrix.java }} ${{ matrix.profile }}
         run: |
-          mvn -s ./.m2-settings.xml -fae clean install -Dtest=ClientBusStrategyTestCase -DfailIfNoTests=false
+          mvn -s ./.m2-settings.xml -fae clean install -Dtest=ClientBusStrategyTestCase,JBWS1666TestCase -DfailIfNoTests=false
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
