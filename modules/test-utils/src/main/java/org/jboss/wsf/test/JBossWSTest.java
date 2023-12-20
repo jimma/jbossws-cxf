@@ -176,7 +176,9 @@ public abstract class JBossWSTest extends Assert
          }
       }
       long start = System.currentTimeMillis();
+      System.out.println("------start the process -----");
       Process p = pb.start();
+      System.out.println("------after pb.start() the process -----");
       try
       {
          int statusCode = p.waitFor();
