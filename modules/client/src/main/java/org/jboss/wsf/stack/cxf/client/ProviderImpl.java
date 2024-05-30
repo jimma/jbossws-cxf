@@ -270,12 +270,12 @@ public class ProviderImpl extends org.apache.cxf.jaxws22.spi.ProviderImpl
          WebServiceFeature... features)
    {
       //check feature types
-      for (WebServiceFeature f : features) {
+      /*for (WebServiceFeature f : features) {
          final String fName = f.getClass().getName();
          if (!fName.startsWith("jakarta.xml.ws") && !fName.startsWith("org.jboss.ws")) {
              throw Messages.MESSAGES.unknownFeature(f.getClass().getName());
          }
-      }
+      }*/
       
       final String busStrategy = ClientBusSelector.getInstance().selectStrategy(features);
       ClassLoader origClassLoader = getContextClassLoader();
