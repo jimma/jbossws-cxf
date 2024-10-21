@@ -44,6 +44,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.jboss.wsf.spi.deployment.Endpoint;
 import org.jboss.wsf.spi.security.EJBMethodSecurityAttribute;
 import org.jboss.wsf.spi.security.EJBMethodSecurityAttributeProvider;
+import org.jboss.wsf.stack.cxf.JAXPDelegateClassLoader;
 
 /**
  * Interceptor which checks the current principal is authorized to
@@ -55,10 +56,25 @@ import org.jboss.wsf.spi.security.EJBMethodSecurityAttributeProvider;
 public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
 {
    private static final String KEY = HandlerAuthInterceptor.class.getName() + ".SECURITY_EXCEPTION";
-   
+   private boolean skipAuth = false;
    public HandlerAuthInterceptor()
    {
       super(Phase.PRE_PROTOCOL_FRONTEND);
+      addBefore(SOAPHandlerInterceptor.class.getName());
+      addBefore(LogicalHandlerInInterceptor.class.getName());
+   }
+   /**
+    * Create a {@code HandlerAuthInterceptor} that can optionally skip authentication.
+    * When the authentication is skipped, it added a customized {@code JBossWSHandlerChainInvoker}
+    * which set the correct TCCL to allow the handler to access CDI
+    * Please see
+    * This interceptor will be added to CXF interceptor chain
+    * @param skipAuth a boolean flag indicating whether to skip authentication.
+    **/
+   public HandlerAuthInterceptor(boolean skipAuth)
+   {
+      super(Phase.PRE_PROTOCOL_FRONTEND);
+      skipAuth = skipAuth;
       addBefore(SOAPHandlerInterceptor.class.getName());
       addBefore(LogicalHandlerInInterceptor.class.getName());
    }
@@ -76,7 +92,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
             @SuppressWarnings("rawtypes")
             final List<Handler> handlerChain = ep.getJaxwsBinding().getHandlerChain();
             if (handlerChain != null && !handlerChain.isEmpty()) { //save
-               invoker = new JBossWSHandlerChainInvoker(handlerChain, isOutbound(message, ex));
+               invoker = new JBossWSHandlerChainInvoker(handlerChain, isOutbound(message, ex), skipAuth);
                ex.put(HandlerChainInvoker.class, invoker);
             }
          }
@@ -91,23 +107,47 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
    private static class JBossWSHandlerChainInvoker extends HandlerChainInvoker
    {
 
-      public JBossWSHandlerChainInvoker(@SuppressWarnings("rawtypes") List<Handler> hc, boolean isOutbound)
+      private boolean skipAuth = false;
+      public JBossWSHandlerChainInvoker(@SuppressWarnings("rawtypes") List<Handler> hc, boolean isOutbound, boolean skipAuth)
       {
          super(hc, isOutbound);
+         skipAuth = skipAuth;
       }
 
       @Override
       public boolean invokeLogicalHandlers(boolean requestor, LogicalMessageContext context)
       {
-         checkAuthorization(context);
-         return super.invokeLogicalHandlers(requestor, context);
+         if (!skipAuth) {
+            checkAuthorization(context);
+         }
+         ClassLoader original = SecurityActions.getContextClassLoader();
+         try {
+            if (original instanceof JAXPDelegateClassLoader) {
+               JAXPDelegateClassLoader jaxpLoader = (JAXPDelegateClassLoader)original;
+               SecurityActions.setContextClassLoader(jaxpLoader.getDelegate());
+            }
+            return super.invokeLogicalHandlers(requestor, context);
+         } finally {
+            SecurityActions.setContextClassLoader(original);
+         }
       }
 
       @Override
       public boolean invokeProtocolHandlers(boolean requestor, MessageContext context)
       {
-         checkAuthorization(context);
-         return super.invokeProtocolHandlers(requestor, context);
+         if (!skipAuth) {
+            checkAuthorization(context);
+         }
+         ClassLoader original = SecurityActions.getContextClassLoader();
+         try {
+            if (original instanceof JAXPDelegateClassLoader) {
+               JAXPDelegateClassLoader jaxpLoader = (JAXPDelegateClassLoader)original;
+               SecurityActions.setContextClassLoader(jaxpLoader.getDelegate());
+            }
+            return super.invokeProtocolHandlers(requestor, context);
+         } finally {
+            SecurityActions.setContextClassLoader(original);
+         }
       }
       
       @Override
@@ -116,7 +156,16 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
          if (context.containsKey(KEY)) {
             return true;
          }
-         return super.invokeLogicalHandlersHandleFault(requestor, context);
+         ClassLoader original = SecurityActions.getContextClassLoader();
+         try {
+            if (original instanceof JAXPDelegateClassLoader) {
+               JAXPDelegateClassLoader jaxpLoader = (JAXPDelegateClassLoader)original;
+               SecurityActions.setContextClassLoader(jaxpLoader.getDelegate());
+            }
+            return super.invokeLogicalHandlersHandleFault(requestor, context);
+         } finally {
+            SecurityActions.setContextClassLoader(original);
+         }
       }
 
       @Override
@@ -125,7 +174,16 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
          if (context.containsKey(KEY)) {
             return true;
          }
-         return super.invokeProtocolHandlersHandleFault(requestor, context);
+         ClassLoader original = SecurityActions.getContextClassLoader();
+         try {
+            if (original instanceof JAXPDelegateClassLoader) {
+               JAXPDelegateClassLoader jaxpLoader = (JAXPDelegateClassLoader)original;
+               SecurityActions.setContextClassLoader(jaxpLoader.getDelegate());
+            }
+            return super.invokeProtocolHandlersHandleFault(requestor, context);
+         } finally {
+            SecurityActions.setContextClassLoader(original);
+         }
       }
 
       protected void checkAuthorization(MessageContext ctx)
