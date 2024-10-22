@@ -49,19 +49,21 @@ import org.jboss.wsf.stack.cxf.JAXPDelegateClassLoader;
 /**
  * Interceptor which checks the current principal is authorized to
  * call a given handler
- * 
+ *
  * @author alessio.soldano@jboss.com
  * @since 23-Sep-2013
  */
 public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
 {
    private static final String KEY = HandlerAuthInterceptor.class.getName() + ".SECURITY_EXCEPTION";
-   private boolean skipAuth = false;
+
+   private boolean skip = false;
    public HandlerAuthInterceptor()
    {
       super(Phase.PRE_PROTOCOL_FRONTEND);
       addBefore(SOAPHandlerInterceptor.class.getName());
       addBefore(LogicalHandlerInInterceptor.class.getName());
+      skip = false;
    }
    /**
     * Create a {@code HandlerAuthInterceptor} that can optionally skip authentication.
@@ -74,9 +76,9 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
    public HandlerAuthInterceptor(boolean skipAuth)
    {
       super(Phase.PRE_PROTOCOL_FRONTEND);
-      skipAuth = skipAuth;
       addBefore(SOAPHandlerInterceptor.class.getName());
       addBefore(LogicalHandlerInInterceptor.class.getName());
+      skip = skipAuth;
    }
 
    @Override
@@ -87,42 +89,48 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
       if (null == invoker)
       {
          final org.apache.cxf.endpoint.Endpoint endpoint = ex.getEndpoint();
-         if (endpoint instanceof JaxWsEndpointImpl) { // JAXWS handlers are not assigned to different endpoint types 
+         if (endpoint instanceof JaxWsEndpointImpl) { // JAXWS handlers are not assigned to different endpoint types
             final JaxWsEndpointImpl ep = (JaxWsEndpointImpl)endpoint;
             @SuppressWarnings("rawtypes")
             final List<Handler> handlerChain = ep.getJaxwsBinding().getHandlerChain();
             if (handlerChain != null && !handlerChain.isEmpty()) { //save
-               invoker = new JBossWSHandlerChainInvoker(handlerChain, isOutbound(message, ex), skipAuth);
+               invoker = new JBossWSHandlerChainInvoker(handlerChain, isOutbound(message, ex), skip);
                ex.put(HandlerChainInvoker.class, invoker);
             }
          }
       }
    }
-   
+
    private boolean isOutbound(Message message, Exchange ex) {
       return message == ex.getOutMessage()
-          || message == ex.getOutFaultMessage();
+              || message == ex.getOutFaultMessage();
    }
-   
+
    private static class JBossWSHandlerChainInvoker extends HandlerChainInvoker
    {
 
-      private boolean skipAuth = false;
+      private boolean skip = false;
+      public JBossWSHandlerChainInvoker(@SuppressWarnings("rawtypes") List<Handler> hc, boolean isOutbound)
+      {
+         super(hc, isOutbound);
+         skip = false;
+      }
+
       public JBossWSHandlerChainInvoker(@SuppressWarnings("rawtypes") List<Handler> hc, boolean isOutbound, boolean skipAuth)
       {
          super(hc, isOutbound);
-         skipAuth = skipAuth;
+         skip = skipAuth;
       }
 
       @Override
       public boolean invokeLogicalHandlers(boolean requestor, LogicalMessageContext context)
       {
-         if (!skipAuth) {
+         if (!skip) {
             checkAuthorization(context);
          }
          ClassLoader original = SecurityActions.getContextClassLoader();
          try {
-            if (original instanceof JAXPDelegateClassLoader) {
+           if (original instanceof JAXPDelegateClassLoader) {
                JAXPDelegateClassLoader jaxpLoader = (JAXPDelegateClassLoader)original;
                SecurityActions.setContextClassLoader(jaxpLoader.getDelegate());
             }
@@ -135,7 +143,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
       @Override
       public boolean invokeProtocolHandlers(boolean requestor, MessageContext context)
       {
-         if (!skipAuth) {
+         if (!skip) {
             checkAuthorization(context);
          }
          ClassLoader original = SecurityActions.getContextClassLoader();
@@ -149,11 +157,12 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
             SecurityActions.setContextClassLoader(original);
          }
       }
-      
+
       @Override
       public boolean invokeLogicalHandlersHandleFault(boolean requestor, LogicalMessageContext context)
       {
-         if (context.containsKey(KEY)) {
+
+         if (!skip && context.containsKey(KEY)) {
             return true;
          }
          ClassLoader original = SecurityActions.getContextClassLoader();
@@ -171,7 +180,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
       @Override
       public boolean invokeProtocolHandlersHandleFault(boolean requestor, MessageContext context)
       {
-         if (context.containsKey(KEY)) {
+         if (!skip && context.containsKey(KEY)) {
             return true;
          }
          ClassLoader original = SecurityActions.getContextClassLoader();
@@ -196,7 +205,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
          Exchange exchange = message.getExchange();
          Endpoint ep = exchange.get(Endpoint.class);
          EJBMethodSecurityAttributeProvider attributeProvider = ep
-               .getAttachment(EJBMethodSecurityAttributeProvider.class);
+                 .getAttachment(EJBMethodSecurityAttributeProvider.class);
          if (attributeProvider != null) //ejb endpoints only can be associated with this...
          {
             SecurityContext secCtx = message.get(SecurityContext.class);
@@ -232,5 +241,4 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
          }
       }
    }
-
 }
