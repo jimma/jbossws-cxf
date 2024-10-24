@@ -57,7 +57,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
 {
    private static final String KEY = HandlerAuthInterceptor.class.getName() + ".SECURITY_EXCEPTION";
 
-   private boolean skip = false;
+   private final boolean skip;
    public HandlerAuthInterceptor()
    {
       super(Phase.PRE_PROTOCOL_FRONTEND);
@@ -109,7 +109,7 @@ public class HandlerAuthInterceptor extends AbstractPhaseInterceptor<Message>
    private static class JBossWSHandlerChainInvoker extends HandlerChainInvoker
    {
 
-      private boolean skip = false;
+      private final boolean skip;
       public JBossWSHandlerChainInvoker(@SuppressWarnings("rawtypes") List<Handler> hc, boolean isOutbound)
       {
          super(hc, isOutbound);
