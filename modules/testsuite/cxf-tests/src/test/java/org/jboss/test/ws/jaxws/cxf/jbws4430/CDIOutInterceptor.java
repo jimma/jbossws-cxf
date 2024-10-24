@@ -17,20 +17,18 @@
  * under the License.
  */
 package org.jboss.test.ws.jaxws.cxf.jbws4430;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+public class CDIOutInterceptor extends AbstractPhaseInterceptor<Message> {
+   public CDIOutInterceptor() {
+      super(Phase.PRE_STREAM);
+   }
 
-import jakarta.jws.HandlerChain;
-import org.apache.cxf.interceptor.OutInterceptors;
-
-@jakarta.jws.WebService(targetNamespace = "http://test.ws.jboss.org/",
-        wsdlLocation = "WEB-INF/wsdl/HelloWorld.wsdl")
-@HandlerChain(file = "/handlers.xml")
-@OutInterceptors(interceptors = {"org.jboss.test.ws.jaxws.cxf.jbws4430.CDIOutInterceptor"})
-public class HelloBean {
-    public HelloBean() {
-    }
-
-    @jakarta.jws.WebMethod
-    public String hello(String name) {
-        return "Hello " + name;
-    }
+   public void handleMessage(Message message) {
+      if (!MessageUtils.isRequestor(message)) {
+         DelegateBean bean = new DelegateBean();
+      }
+   }
 }
